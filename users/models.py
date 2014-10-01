@@ -6,6 +6,10 @@ from django.utils import timezone
 
 # Create your models here.
 class UserManager(BaseUserManager):
+
+    def live(self):
+        return self.model.objects.filter(is_active=True)
+
     def create_user(
         self,
         email,
@@ -17,7 +21,7 @@ class UserManager(BaseUserManager):
         if not email:
             raise ValueError('You must provide an email address!')
         if not username:
-            raise ValueError('You must provide an email address!')
+            raise ValueError('You must provide a user name!')
         now = timezone.now()
         user = self.model(
             email=self.normalize_email(email),
@@ -55,7 +59,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 #    last_login = models.DateField()
     date_joined = models.DateField(auto_now_add=True)
 #    hangouts = models.ForeignKey(Hangout)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     objects = UserManager()
 
@@ -74,3 +78,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return self.is_admin
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ("users:detail", (), {"id": self.id})
+

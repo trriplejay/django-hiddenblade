@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+  <head>
+    <title>{% block page_title %}{% endblock %}Hidden Blade</title>
+<!--    <link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap.min.css"> -->
+  </head>
+  <body>
+    <div class="container">
+    {% block menu_bar %}{% endblock %}
+    </div>
+    <div class="container">
+    <h1>Welcome to Hiddenblade</h1>
+    {% block page_content %}{% endblock %}
+    </div>
+  </body>
+</html>

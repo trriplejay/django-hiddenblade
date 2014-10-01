@@ -94,4 +94,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+TEMPLATE_DIRS = (
+    ('hiddenblade/templates/'),
+
+)
+
 AUTH_USER_MODEL = 'users.User'

@@ -1,0 +1,15 @@
+{% extends "_layouts/base.html" %}
+
+{% block page_title %} List of Users | {% endblock %}
+
+{% block page_content %}
+<h2>List of Users</h2>
+
+<ul>
+    {% for user in user_list %}
+    <li><a href="{{ user.get_absolute_url }}">{{ user.username }}</a></li>
+    {% empty %}
+    <li>no users yet...</li>
+    {% endfor %}
+</ul>
+{% endblock %}
