@@ -1,11 +1,12 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone
+#from phonenumber_field.modelfields import PhoneNumberField
 #need to import models.py from the hangouts app eventually
 
 
 # Create your models here.
-class UserManager(BaseUserManager):
+class MyUserManager(BaseUserManager):
 
     def live(self):
         return self.model.objects.filter(is_active=True)
@@ -16,6 +17,9 @@ class UserManager(BaseUserManager):
         username, 
         first_name='', 
         last_name='',
+        home_address='',
+        work_address='',
+  #      phone_number='',
         password=None
     ):
         if not email:
@@ -26,6 +30,11 @@ class UserManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),
             username=username,
+            first_name=first_name,
+            last_name=last_name,
+            home_address=home_address,
+            work_address=work_address,
+ #           phone_number=phone_number,
             last_login=now,
             is_active=True,
             date_joined=now,
@@ -39,9 +48,24 @@ class UserManager(BaseUserManager):
         self,
         username, 
         password,
+        email,
+        first_name='',
+        last_name='',
+        home_address='',
+        work_address='',
+    #    phone_number='',
     ):
-        email = 'test@example.com'
-        user = self.create_user(email, username=username, password=password)
+        user = self.create_user(
+            email, 
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            home_address=home_address,
+            work_address=work_address,
+   #         phone_number=phone_number,
+            password=password
+            
+        )
         user.is_admin = True
         user.is_superuser = True
         user.save(using=self._db)
@@ -49,26 +73,43 @@ class UserManager(BaseUserManager):
 
     
 
-class User(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(max_length=100, unique=True)
-    username = models.CharField(max_length=255, unique=True)
-    first_name = models.CharField(max_length=30, blank=True)
-    last_name = models.CharField(max_length=30, blank=True)
+class MyUser(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(
+        max_length=255, 
+        verbose_name='email address',
+    )
+    username = models.CharField(
+        max_length=255, 
+        unique=True,
+        verbose_name='user name',
+    )
+
+    first_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
     home_address = models.CharField(max_length=255, blank=True)
     work_address = models.CharField(max_length=255, blank=True)
-#    last_login = models.DateField()
-    date_joined = models.DateField(auto_now_add=True)
+#    phone_number = PhoneNumberField(blank=True)
+
+
+    date_joined = models.DateField()
 #    hangouts = models.ForeignKey(Hangout)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    objects = UserManager()
+    email_verified = models.BooleanField(default=False)
+
+    objects = MyUserManager()
 
     USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email',] 
+
+
+    def get_slug_field(self):
+        return self.username
 
     def get_short_name(self):
         return self.first_name
 
-    def get_long_name(self):
+    def get_full_name(self):
         return self.first_name + ' ' +  self.last_name
 
     def __unicode__(self):
@@ -81,5 +122,5 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @models.permalink
     def get_absolute_url(self):
-        return ("users:detail", (), {"id": self.id})
+        return ("users:detail", (), { "slug": self.username})
 

@@ -37,7 +37,9 @@ DJANGO_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 )
-THIRD_PARTY_APPS = ()
+THIRD_PARTY_APPS = (
+    'debug_toolbar',
+)
 
 LOCAL_APPS = (
     'users',
@@ -47,8 +49,9 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -75,6 +78,11 @@ DATABASES = {
     }
 }
 
+
+INTERNAL_IPS = (
+    '10.0.2.2',
+)
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
 
@@ -99,4 +107,7 @@ TEMPLATE_DIRS = (
 
 )
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'users.MyUser'
+
+
+
