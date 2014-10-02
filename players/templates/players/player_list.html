@@ -3,11 +3,11 @@
 {% block page_title %} List of Users | {% endblock %}
 
 {% block page_content %}
-<h2>List of Users</h2>
+<h2>List of Players</h2>
 
 <ul>
-    {% for myuser in myuser_list %}
-    <li><a href="{{ myuser.get_absolute_url }}">{{ myuser.username }}</a></li>
+    {% for player in player_list %}
+    <li><a href="{{ player.get_absolute_url }}">{{ player.username }}</a></li>
     {% empty %}
     <li>no users yet...</li>
     {% endfor %}

@@ -1,20 +1,20 @@
 from django.shortcuts import render
-from .models import MyUser
+from .models import Player
 from django.views.generic import ListView, DetailView, TemplateView
 
 # Create your views here.
 
 
-class LiveUserMixin(object):
+class LivePlayerMixin(object):
     def get_queryset(self):
         return self.model.objects.live()
 
-class MyUserListView(LiveUserMixin, ListView):
-    model = MyUser
+class PlayerListView(LivePlayerMixin, ListView):
+    model = Player 
 
 
-class MyUserDetailView(DetailView):
-    model = MyUser
+class PlayerDetailView(DetailView):
+    model = Player
     slug_field = 'username'
 """
 class UserDetailView(TemplateView):

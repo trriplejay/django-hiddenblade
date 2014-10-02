@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
 
-from .models import MyUser
+from .models import Player
 # Register your models here.
 
 class UserCreationForm(forms.ModelForm):
@@ -16,7 +16,7 @@ class UserCreationForm(forms.ModelForm):
 #    email = forms.EmailField(label='Email address',widget=forms.EmailInput)
 
     class Meta:
-        model = MyUser
+        model = Player
         fields = (
             'username',
             'email',
@@ -51,7 +51,7 @@ class UserChangeForm(forms.ModelForm):
     password = ReadOnlyPasswordHashField()
 
     class Meta:
-        model = MyUser
+        model = Player
         fields = (
             'email', 
             'password', 
@@ -72,7 +72,7 @@ class UserChangeForm(forms.ModelForm):
         # field does not have access to the initial value
         return self.initial["password"]
 
-class MyUserAdmin(UserAdmin):
+class PlayerAdmin(UserAdmin):
 
     form = UserChangeForm
     add_form = UserCreationForm
@@ -99,5 +99,5 @@ class MyUserAdmin(UserAdmin):
 
     
 
-admin.site.register(MyUser, MyUserAdmin)
+admin.site.register(Player, PlayerAdmin)
 admin.site.unregister(Group)

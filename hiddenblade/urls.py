@@ -10,6 +10,6 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^$', views.HomepageView.as_view(), name="home"),
-    url(r'^users/', include("users.urls", namespace="users")),
+    url(r'^players/', include("players.urls", namespace="players")),
     url(r'^admin/', include(admin.site.urls)),
 )

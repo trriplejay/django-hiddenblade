@@ -6,7 +6,7 @@ from django.utils import timezone
 
 
 # Create your models here.
-class MyUserManager(BaseUserManager):
+class PlayerManager(BaseUserManager):
 
     def live(self):
         return self.model.objects.filter(is_active=True)
@@ -73,7 +73,7 @@ class MyUserManager(BaseUserManager):
 
     
 
-class MyUser(AbstractBaseUser, PermissionsMixin):
+class Player(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(
         max_length=255, 
         verbose_name='email address',
@@ -97,7 +97,7 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
 
-    objects = MyUserManager()
+    objects = PlayerManager()
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email',] 
@@ -122,5 +122,5 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
 
     @models.permalink
     def get_absolute_url(self):
-        return ("users:detail", (), { "slug": self.username})
+        return ("players:detail", (), { "slug": self.username})
 

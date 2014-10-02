@@ -42,7 +42,7 @@ THIRD_PARTY_APPS = (
 )
 
 LOCAL_APPS = (
-    'users',
+    'players',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -107,7 +107,7 @@ TEMPLATE_DIRS = (
 
 )
 
-AUTH_USER_MODEL = 'users.MyUser'
+AUTH_USER_MODEL = 'players.Player'
 
 
 
