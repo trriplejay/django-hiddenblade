@@ -9,7 +9,8 @@
     {% block menu_bar %}{% endblock %}
     </div>
     <div class="container">
-    <h1>Welcome to Hiddenblade</h1>
+    {% block page_heading %}<h1>Welcome to Hiddenblade</h1>{% endblock %}
+
     {% block page_content %}{% endblock %}
     </div>
   </body>

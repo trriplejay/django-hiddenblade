@@ -5,26 +5,30 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
 
+
 from .models import Player
 # Register your models here.
 
-class UserCreationForm(forms.ModelForm):
-    """A form for creating new users. Includes all the required
-    fields, plus a repeated password."""
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
-#    email = forms.EmailField(label='Email address',widget=forms.EmailInput)
+
+class PlayerCreationForm(forms.ModelForm):
+    """
+    A form for creating new users. Includes all the required
+    fields, plus a repeated password.
+    """
+    password1 = forms.CharField(
+        label='Password',
+        widget=forms.PasswordInput
+    )
+    password2 = forms.CharField(
+        label='Password confirmation',
+        widget=forms.PasswordInput
+    )
 
     class Meta:
         model = Player
         fields = (
             'username',
             'email',
-      #      'phone_number',
-            'first_name',
-            'last_name',
-            'home_address',
-            'work_address',
         )
 
     def clean_password2(self):
@@ -37,67 +41,94 @@ class UserCreationForm(forms.ModelForm):
 
     def save(self, commit=True):
         # Save the provided password in hashed format
-        user = super(UserCreationForm, self).save(commit=False)
+        user = super(PlayerCreationForm, self).save(commit=False)
         user.set_password(self.cleaned_data["password1"])
         if commit:
             user.save()
         return user
 
-class UserChangeForm(forms.ModelForm):
+class PlayerChangeForm(forms.ModelForm):
     """A form for updating users. Includes all the fields on
     the user, but replaces the password field with admin's
     password hash display field.
     """
     password = ReadOnlyPasswordHashField()
+    phone_number = forms.NumberInput()
 
     class Meta:
         model = Player
         fields = (
-            'email', 
-            'password', 
-       #     'phone_number',
+            'email',
+            'password',
+            'phone_number',
             'first_name',
             'last_name',
             'home_address',
             'work_address',
-            'is_active', 
+            'is_active',
             'is_admin',
             'date_joined',
             'last_login',
         )
 
     def clean_password(self):
-        # Regardless of what the user provides, return the initial value.
-        # This is done here, rather than on the field, because the
-        # field does not have access to the initial value
+        """
+        Regardless of what the user provides, return the initial value.
+        This is done here, rather than on the field, because the
+        field does not have access to the initial value
+        """
         return self.initial["password"]
 
+
+@admin.register(Player)
 class PlayerAdmin(UserAdmin):
 
-    form = UserChangeForm
-    add_form = UserCreationForm
+    form = PlayerChangeForm
+    add_form = PlayerCreationForm
 
     fieldsets = (
-        (None, {'fields': ('email', 'username', 'password')}),
-        ('Personal info', {'fields': ('first_name','last_name','home_address','work_address',)}),
-        ('Permissions', {'fields': ('is_admin','is_active','date_joined','last_login')}),
+        (None,
+            {'fields': ('email', 'username', 'password')}),
+        ('Personal info',
+            {'fields': (
+                'first_name',
+                'last_name',
+                'phone_number',
+                'home_address',
+                'work_address',
+            )}),
+        ('Permissions',
+            {'fields': (
+                'is_admin',
+                'is_active',
+                'date_joined',
+                'last_login'
+            )}),
     )
 
-    list_display = ["username", "email", "date_joined", "last_login", "is_active",]
-    list_filter = ["date_joined", "username",] 
-    search_fields= ["username", "email",]
-    ordering= ['date_joined']
-    
+    list_display = [
+        "username",
+        "email",
+        "date_joined",
+        "last_login",
+        "is_active",
+    ]
+    list_filter = ["date_joined", "username", ]
+    search_fields = ["username", "email", ]
+    ordering = ['date_joined']
+
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2','date_joined')}
-        ),
+            'fields': (
+                'username',
+                'email',
+                'password1',
+                'password2',
+                'date_joined',
+            )
+        }),
     )
 
 
-
-    
-
-admin.site.register(Player, PlayerAdmin)
-admin.site.unregister(Group)
+#admin.site.unregister(Group)

@@ -1,0 +1,26 @@
+{% extends "_layouts/base.html" %}
+
+
+{% block page_title %}Update{% endblock %}
+
+{% block page_heading %}Update Profile{% endblock %}
+{% block page_content %}
+{% if registered %}
+    <strong>Thank you for registering!</strong>
+
+{% else %}
+    <strong>Register here</strong>
+
+    <form id="form_class" method="post" action=""
+    <h2>What's up {{ player.get_short_name }}?</h2>
+    <p><strong>Email: </strong>{{ player.email }}</p>
+    <p><strong>Phone Number: </strong>{{ player.phone_number }}</p>
+    <p><strong>Home address: </strong>{{ player.home_address }}</p>
+    <p><strong>Work address: </strong>{{ player.work_address }}</p>
+    <p><strong>First name: </strong>{{ player.first_name }}</p>
+    <p><strong>Last name: </strong>{{ player.last_name }}</p>
+{% else %}
+    <h2>not authorized to view this profile.</h2>
+{% endif %}
+
+{% endblock %}

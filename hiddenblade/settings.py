@@ -1,6 +1,6 @@
 """
 Django settings for hiddenblade project.
-  
+
 For more information on this file, see
 https://docs.djangoproject.com/en/1.7/topics/settings/
 
@@ -47,6 +47,11 @@ LOCAL_APPS = (
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
+from django.core.urlresolvers import reverse_lazy
+LOGIN_URL = reverse_lazy("login")
+LOGIN_REDIRECT_URL = reverse_lazy("home")
+LOGOUT_URL = reverse_lazy("logout")
+
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -69,7 +74,7 @@ WSGI_APPLICATION = 'hiddenblade.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-       # 'NAME': os.path.join(BASE_DIR, 'hiddenblade'),
+        #'NAME': os.path.join(BASE_DIR, 'hiddenblade'),
         'NAME': 'hiddenblade',
         'USER': 'vagrant',
         'PASSWORD': 'v4gr4nt',
@@ -108,6 +113,3 @@ TEMPLATE_DIRS = (
 )
 
 AUTH_USER_MODEL = 'players.Player'
-
-
-

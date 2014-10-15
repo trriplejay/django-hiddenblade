@@ -1,0 +1,10 @@
+{% extends "_layouts/base.html" %}
+
+{% block page_title %}Thanks{% endblock %}
+{% block page_heading %}<h1>Thanks for registering!</h1> {% endblock %}
+{% block page_content %}
+  <p><a href="{% url 'players:list' %}">List of Active Players</a></p>
+
+  <p><a href="{% url 'players:list' %}">View your profile</a></p>
+
+{% endblock %}
