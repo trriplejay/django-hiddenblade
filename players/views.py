@@ -1,9 +1,10 @@
 from .models import Player
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render
-from .forms import PlayerForm
 from django import forms
+from admin import PlayerCreationForm, PlayerChangeForm
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -22,45 +23,52 @@ class PlayerDetailView(LivePlayerMixin, DetailView):
     slug_field = 'username'
 
 
-class PlayerCreate(CreateView):
+class PlayerCreate(FormView):
+    template_name = 'players/player_form.html'
+    form_class = PlayerCreationForm
+    success_url = '/thanks/'
     model = Player
-    password1 = forms.CharField(
-        label='Password',
-        widget=forms.PasswordInput
-    )
-    password2 = forms.CharField(
-        label='Password confirmation',
-        widget=forms.PasswordInput
-    )
 
+   # def get_form(self, form_class):
+    """
+    Check if the user already saved contact details. If so, then show
+    the form populated with those details, to let user change them.
+    """
+#        try:
+            #player = Player.objects.get(player=self.request.player)
+ #           return form_class(instance=player, **self.get_form_kwargs())
+  #      except Player.DoesNotExist:
+    #        return form_class(**self.get_form_kwargs())
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.save()
+        return super(PlayerCreate, self).form_valid(form)
+
+"""
     fields = (
         'username',
         'email',
+        'password',
         'phone_number',
         'first_name',
         'last_name',
         'home_address',
         'work_address',
+        'date_joined',
     )
+"""
 
-    def clean_password2(self):
-        # Check that the two password entries match
-        password1 = self.cleaned_data.get("password1")
-        password2 = self.cleaned_data.get("password2")
-        if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Passwords don't match")
-        return password2
-
-    def save(self, commit=True):
-        player = super(PlayerCreate, self).save(commit=False)
-        player.set_password(self.cleaned_data["password1"])
-        if commit:
-            player.save()
-        return player
 
 class PlayerUpdate(UpdateView):
     model = Player
-    fields = ['email', 'home_address', 'work_address', 'phone_number']
+    template_name = 'players/player_form.html'
+    form_class = PlayerChangeForm
+    success_url = 'detail'
+    slug_field = 'username'
+
+
+
 
 class PlayerDelete(DeleteView):
     model = Player

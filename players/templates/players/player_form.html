@@ -11,7 +11,7 @@
 
     <h2>Register here:</h2>
     <strong>Fields with a * are required</strong>
-    <form method="post">
+    <form action="" method="post">
 
         {% csrf_token %}
         <ul>
@@ -31,25 +31,7 @@
         </ul>
         <ul>
 
-
-
-
         </ul>
-<!--        <ul>
-
-            <li><label for="user_name">User name: </label>
-            <input id="user_name" type="text" name="username" value="{{username}}"></li>
-            <li><label for="email1">Email address: </label>
-            <input id="email1" type="text" name="email1" value="{{email}}"></li>
-            <li><label for="email2">Verify email address: </label>
-            <input id="email2" type="text" name="email2" value="{{email}}"></li>
-            <li><label for="password1">Password</label>
-            <input id="password1" type="password" name="password1" value="{{password1}}"></li>
-            <li><label for="password2">Password confirmation</label>
-            <input id="password2" type="password" name="password2" value="{{password2}}"></li>
-        </ul>
--->
-
         <input type="submit" name="submit" value="Join" />
     </form>
 

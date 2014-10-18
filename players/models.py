@@ -5,20 +5,23 @@ from django.core.validators import RegexValidator
 #need to import models.py from the hangouts app eventually
 
 
+
 # Create your models here.
 class PlayerManager(BaseUserManager):
 
     def live(self):
         return self.model.objects.filter(is_active=True)
 
-    def create_user(
+    def create_player(
         self,
         email,
         username,
         first_name='',
         last_name='',
         home_address='',
+        home_zip='',
         work_address='',
+        work_zip='',
         phone_number='',
         password=None
     ):
@@ -27,22 +30,23 @@ class PlayerManager(BaseUserManager):
         if not username:
             raise ValueError('You must provide a user name!')
         now = timezone.now()
-        user = self.model(
+        player = self.model(
             email=self.normalize_email(email),
             username=username,
             first_name=first_name,
             last_name=last_name,
             home_address=home_address,
+            home_zip=home_zip,
             work_address=work_address,
+            work_zip=work_zip,
             phone_number=phone_number,
             last_login=now,
             is_active=True,
-            date_joined=now,
         )
 
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
+        player.set_password(password)
+        player.save(using=self._db)
+        return player
 
     def create_superuser(
         self,
@@ -52,16 +56,20 @@ class PlayerManager(BaseUserManager):
         first_name='',
         last_name='',
         home_address='',
+        home_zip='',
         work_address='',
+        work_zip='',
         phone_number='',
     ):
-        user = self.create_user(
+        user = self.create_player(
             email,
-            username=username,
+            username,
             first_name=first_name,
             last_name=last_name,
             home_address=home_address,
+            home_zip=home_zip,
             work_address=work_address,
+            work_zip=work_zip,
             phone_number=phone_number,
             password=password
 
@@ -82,24 +90,34 @@ class Player(AbstractBaseUser, PermissionsMixin):
         unique=True,
         verbose_name='user name',
     )
-
-    first_name = models.CharField(max_length=50, blank=True)
-    last_name = models.CharField(max_length=50, blank=True)
-    home_address = models.CharField(max_length=255, blank=True)
-    work_address = models.CharField(max_length=255, blank=True)
+    zip_regex = RegexValidator(
+        regex=r"^\d{5}$",
+        message="Please enter a valid 5 digit zip code"
+    )
     phone_regex = RegexValidator(
         regex=r"^\+?1?\d{9,15}$",
         message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.",
     )
-    phone_number = models.CharField(validators=[phone_regex,], max_length=15,blank=True)
+    first_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
+    home_address = models.CharField(max_length=255, blank=True)
+    home_zip = models.CharField(
+        validators=[zip_regex, ], max_length=5, blank=True
+    )
+    work_address = models.CharField(max_length=255, blank=True)
+    work_zip = models.CharField(
+        validators=[zip_regex, ], max_length=5, blank=True
+    )
+    phone_number = models.CharField(
+        validators=[phone_regex, ], max_length=15,blank=True
+    )
 
     phone_validated = models.BooleanField(default=False)
-    date_joined = models.DateField()
     #hangouts = models.ForeignKey(Hangout)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
-
+    date_joined = models.DateTimeField(auto_now_add=True)
     objects = PlayerManager()
 
     USERNAME_FIELD = 'username'
@@ -125,10 +143,13 @@ class Player(AbstractBaseUser, PermissionsMixin):
     def is_phone_validated(self):
         return self.phone_validated
 
+    @property
+    def is_email_verified(self):
+        return self.email_verified
+
     @is_phone_validated.setter
     def is_phone_validated(self, value):
         self.is_phone_validated = value
-
 
     @models.permalink
     def get_absolute_url(self):

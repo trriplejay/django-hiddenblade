@@ -2,5 +2,11 @@
 
 {% block page_content %}
   <p><a href="{% url 'players:list' %}">List of Players</a></p>
+
+  {% if user.is_authenticated %}
+  <p><a href="{% url 'players:detail' user.username %}">Your Profile</a></p>
+  {% else %}
   <p><a href="{% url 'players:register' %}">Sign Up!</a></p>
+  {% endif %}
+
 {% endblock %}
