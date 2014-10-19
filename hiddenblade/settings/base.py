@@ -94,7 +94,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-MEDIA_ROOT = (BASE_DIR.join("uploads"))
+MEDIA_ROOT = (os.path.join(BASE_DIR+"/uploads"))
 
 
 # Static files (CSS, JavaScript, Images)
@@ -102,10 +102,10 @@ MEDIA_ROOT = (BASE_DIR.join("uploads"))
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = ('hiddenblade/static')
+STATIC_ROOT = (os.path.join(BASE_DIR+'/static/'))
 
 TEMPLATE_DIRS = (
-    ('hiddenblade/templates/'),
+    (os.path.join(BASE_DIR+'/templates/')),
 
 )
 
