@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django import forms
 from admin import PlayerCreationForm, PlayerChangeForm
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 
 # Create your views here.
 
@@ -21,6 +22,19 @@ class PlayerListView(LivePlayerMixin, ListView):
 class PlayerDetailView(LivePlayerMixin, DetailView):
     model = Player
     slug_field = 'username'
+
+    def dispatch(self, request, *args, **kwargs):
+        if (request.user.is_authenticated() &
+            request.path_info.find(
+                request.user.username
+            ) == -1
+        ):
+            return super(PlayerDetailView, self).dispatch(request, *args, **kwargs)
+        else:
+            raise PermissionDenied # HTTP 403
+
+
+
 
 
 class PlayerCreate(FormView):

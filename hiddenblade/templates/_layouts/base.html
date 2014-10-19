@@ -1,16 +1,36 @@
 <!doctype html>
 <html>
   <head>
-    <title>{% block page_title %}{% endblock %}Hidden Blade</title>
+    <title>{% block page_title %}{% endblock %}Assasinate.me</title>
 <!--    <link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap.min.css"> -->
   </head>
   <body>
-    <div class="container">
-    {% block menu_bar %}{% endblock %}
-    </div>
-    <div class="container">
-    {% block page_heading %}<h1>Welcome to Hiddenblade</h1>{% endblock %}
 
+    {% block page_heading %}
+    <h1><a href="{% url 'home' %}">Assassinate.me</a></h1>
+
+
+    {% block menu_bar %}
+      <div class="container">
+
+      {% if user.is_anonymous %}
+      <a href="{% url 'login' %}">login</a>
+      <a href="{% url 'players:register' %}">sign up</a>
+      {% else %}
+      <p>You are logged in as: {{ user }}
+      <a href="{% url 'players:detail' user.username %}">Profile</a>
+      <a href="{% url 'logout' %}">logout</a>
+      </p>
+      {% endif %}
+      </div>
+    {% endblock %}
+
+
+
+
+
+    {% endblock %}
+    <div class="container">
     {% block page_content %}{% endblock %}
     </div>
   </body>

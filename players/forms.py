@@ -22,11 +22,14 @@ class PlayerCreationForm(forms.ModelForm):
         fields = (
             'username',
             'email',
+            'password1',
+            'password2',
             'phone_number',
             'home_address',
             'home_zip',
             'work_address',
-            'work_zip'
+            'work_zip',
+
         )
 
     def clean_password2(self):

@@ -12,7 +12,15 @@ urlpatterns = patterns('',
     url(r'^$', views.HomepageView.as_view(), name="home"),
     url(r'^players/', include("players.urls", namespace="players")),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^thanks/', views.ThanksView.as_view(), name="thanks"),
-    url(r'^login/$', 'django.contrib.auth.views.login', name="login"),
-    url(r'^logout/$', 'django.contrib.auth.views.logout', name="logout")
+    url(r'^thanks/$', views.ThanksView.as_view(), name="thanks"),
+    url(
+        r'^login/$', 'django.contrib.auth.views.login', {
+            'template_name': 'login.html'
+        }, name="login"
+    ),
+    url(
+        r'^logout/$', 'django.contrib.auth.views.logout', {
+            'template_name': 'logout.html'
+        }, name="logout"
+    )
 )

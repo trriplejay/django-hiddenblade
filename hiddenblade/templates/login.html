@@ -1,0 +1,38 @@
+{% extends "_layouts/base.html" %}
+{% block page_content %}
+
+    {% if form.errors %}
+    <p>Your username and password didn't match. Please try again.</p>
+    {% endif %}
+    <div id="login">
+        <form class="form-horizontal" name="LoginForm" action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+
+
+
+        <div class="control-group">
+            <label class="control-label" for="username">{{form.username.label_tag }}</label>
+            <div class="controls">
+
+                {{form.username}}
+
+            </div>
+
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="password"{{ form.password.label_tag }}</label>
+            <div class="controls">
+
+                {{ form.password }}
+
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn">Login</button>
+                <input type="hidden" name="next" value="{{ next }}" />
+            </div>
+        </div>
+        </form>
+    </div>
+{% endblock %}

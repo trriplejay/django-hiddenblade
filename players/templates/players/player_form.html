@@ -9,23 +9,31 @@
 
 {% else %}
 
-    <h2>Register here:</h2>
-    <strong>Fields with a * are required</strong>
+    <h3>Please provide us with some information</h3>
     <form action="" method="post">
 
         {% csrf_token %}
-        <ul>
+
         <div class="fieldWrapper">
         {% for field in form %}
         {% if field.errors %}
-        {{ field.errors }}
-        <li>{{ field.label_tag }} {{ field }}</li>
-        {% else %}
-        <li>{{ field.label_tag }} {{ field }}</li>
-
+            <div class="field-error" for="errors">
+            {{ field.errors }}
+            </div>
         {% endif %}
-        {% endfor %}
+            <div class="control-label" for="{{ field.auto_id }}">
+                {{ field.label_tag }}
 
+                {% if field.field.required %}
+                    <span class="special_class">*</span>
+                {% endif %}
+            </div>
+            <div class="controls">
+
+            {{ field }}
+            </div>
+            <br>
+        {% endfor %}
         </div>
 
         </ul>
