@@ -48,7 +48,9 @@ LOCAL_APPS = (
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 
-ALLOWED_HOSTS=['http://intense-wave-6540.herokuapp.com']
+ALLOWED_HOSTS = ['*']
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 from django.core.urlresolvers import reverse_lazy
 LOGIN_URL = reverse_lazy("login")
