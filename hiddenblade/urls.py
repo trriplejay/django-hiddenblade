@@ -24,3 +24,10 @@ urlpatterns = patterns('',
         }, name="logout"
     )
 )
+
+urlpatterns += patterns('',
+    (r'^static/(.*)$', 'django.views.static.serve', {
+        'document_root': settings.STATIC_ROOT
+    }),
+
+)
