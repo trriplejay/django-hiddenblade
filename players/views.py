@@ -27,14 +27,11 @@ class PlayerDetailView(LivePlayerMixin, DetailView):
         if (request.user.is_authenticated() &
             request.path_info.find(
                 request.user.username
-            ) == -1
+            ) != -1
         ):
             return super(PlayerDetailView, self).dispatch(request, *args, **kwargs)
         else:
             raise PermissionDenied # HTTP 403
-
-
-
 
 
 class PlayerCreate(FormView):
