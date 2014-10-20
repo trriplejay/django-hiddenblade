@@ -5,7 +5,7 @@
 
 {% block page_content %}
 {% if user.username == player.username %}
-	<h2>What's up {{ player.username }}?</h2>
+	<h3>{{ player.username }}</h3>
 	<p><strong>Email: </strong>{{ player.email }}</p>
 	<p><strong>Phone Number: </strong>{{ player.phone_number }}</p>
 	<p><strong>Home address: </strong>{{ player.home_address }}</p>

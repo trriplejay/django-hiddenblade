@@ -113,11 +113,12 @@ class Player(AbstractBaseUser, PermissionsMixin):
     )
 
     phone_validated = models.BooleanField(default=False)
-    #hangouts = models.ForeignKey(Hangout)
+    #hotspots = models.ForeignKey(Hotspot)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
+
     objects = PlayerManager()
 
     USERNAME_FIELD = 'username'
@@ -146,6 +147,10 @@ class Player(AbstractBaseUser, PermissionsMixin):
     @property
     def is_email_verified(self):
         return self.email_verified
+
+    @is_email_verified.setter
+    def is_email_verified(self, value):
+        self.is_email_verified = value
 
     @is_phone_validated.setter
     def is_phone_validated(self, value):
