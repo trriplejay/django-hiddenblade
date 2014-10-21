@@ -6,9 +6,14 @@ from .forms import RosterChangeForm, RosterCreationForm
 # Register your models here.
 
 
+class MembershipInline(admin.TabularInline):
+    model = Membership
+    extra = 1
+
 @admin.register(Roster)
 class RosterAdmin(admin.ModelAdmin):
 
+    inlines = (MembershipInline, )
     form = RosterChangeForm
     add_form = RosterCreationForm
 
@@ -50,3 +55,4 @@ class RosterAdmin(admin.ModelAdmin):
             )
         }),
     )
+

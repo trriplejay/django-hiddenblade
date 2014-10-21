@@ -2,6 +2,9 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 from django.utils import timezone
 from django.core.validators import RegexValidator
+from localflavor.us.models import USPostalCodeField
+from localflavor.us.models import PhoneNumberField
+from localflavor.us.models import USStateField
 #need to import models.py from the hangouts app eventually
 
 
@@ -19,6 +22,7 @@ class PlayerManager(BaseUserManager):
         first_name='',
         last_name='',
         home_address='',
+        state='',
         home_zip='',
         work_address='',
         work_zip='',
@@ -36,6 +40,7 @@ class PlayerManager(BaseUserManager):
             first_name=first_name,
             last_name=last_name,
             home_address=home_address,
+            state=state,
             home_zip=home_zip,
             work_address=work_address,
             work_zip=work_zip,
@@ -56,6 +61,7 @@ class PlayerManager(BaseUserManager):
         first_name='',
         last_name='',
         home_address='',
+        state='',
         home_zip='',
         work_address='',
         work_zip='',
@@ -67,6 +73,7 @@ class PlayerManager(BaseUserManager):
             first_name=first_name,
             last_name=last_name,
             home_address=home_address,
+            state=state,
             home_zip=home_zip,
             work_address=work_address,
             work_zip=work_zip,
@@ -90,33 +97,28 @@ class Player(AbstractBaseUser, PermissionsMixin):
         unique=True,
         verbose_name='user name',
     )
-    zip_regex = RegexValidator(
-        regex=r"^\d{5}$",
-        message="Please enter a valid 5 digit zip code"
-    )
-    phone_regex = RegexValidator(
-        regex=r"^\+?1?\d{9,15}$",
-        message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.",
-    )
+
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
+
+    state = USStateField()
+
     home_address = models.CharField(max_length=255, blank=True)
-    home_zip = models.CharField(
-        validators=[zip_regex, ], max_length=5, blank=True
-    )
+    home_zip = USPostalCodeField()
+
     work_address = models.CharField(max_length=255, blank=True)
-    work_zip = models.CharField(
-        validators=[zip_regex, ], max_length=5, blank=True
-    )
-    phone_number = models.CharField(
-        validators=[phone_regex, ], max_length=15,blank=True
-    )
+    work_zip = USPostalCodeField()
+
+    phone_number = PhoneNumberField()
 
     phone_validated = models.BooleanField(default=False)
+    email_verified = models.BooleanField(default=False)
+
     #hotspots = models.ForeignKey(Hotspot)
+
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    email_verified = models.BooleanField(default=False)
+
     date_joined = models.DateTimeField(auto_now_add=True)
 
     objects = PlayerManager()

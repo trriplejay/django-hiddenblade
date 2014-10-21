@@ -2,19 +2,20 @@ from django.db import models
 from players.models import Player
 from localflavor.us.models import USPostalCodeField
 from localflavor.us.models import USStateField
+from django.template.defaultfilters import slugify
 
 
 # Create your models here.
-"""class RosterManager(models.Manager):
-
+class RosterManager(models.Manager):
 
     def live(self):
-        return self.model.objects
+        return self.model.objects.filter(is_active=True)
 
+"""
     def create_roster(
         self,
         name,
-        members
+        members,
         description='',
         city='',
         state='',
@@ -53,6 +54,10 @@ class Roster(models.Model):
     date_created = models.DateField(auto_now_add=True)
     # when a moderator 'deletes' a group, it will be set inactive
     is_active = models.BooleanField(default=True)
+    # allows users to see name, description, status, location of the group
+    is_public = models.BooleanField(default=False)
+    # slug for easy linking to group page
+    slug = models.SlugField(max_length=255, blank=True, default='')
 
     #comments = models
     #games = models.ForeignKey(Game)
@@ -61,8 +66,16 @@ class Roster(models.Model):
 
     REQUIRED_FIELDS = ['name', ]
 
+    class Meta:
+        ordering = ["name",]
+
     def __unicode__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super(Roster, self).save(*args, **kwargs)
 
 
 """class MembershipManager(models.Manager):
@@ -109,11 +122,11 @@ class Membership(models.Model):
     # the username of the moderator who invited this player
     invited_by = models.CharField(max_length=255)
     # the number of total games this player has won in this roster
-    games_won = models.PositiveSmallIntegerField()
+    games_won = models.SmallIntegerField(default=0)
     # the number of opponents killed over all games in this roster
-    frags = models.PositiveSmallIntegerField()
+    frags = models.SmallIntegerField(default=0)
     # the nubmer of times this player has died in this roster
-    deaths = models.PositiveSmallIntegerField()
+    deaths = models.SmallIntegerField(default=0)
     # players can specify which aspects of their profile they'd
     # like to share, on a per-roster basis
     # not sure if this is the best way to model this...
@@ -124,4 +137,4 @@ class Membership(models.Model):
     REQUIRED_FIELDS = ['is_moderator', 'invited_by' ]
 
     def __unicode__(self):
-        return self.id
+        return str(self.id)

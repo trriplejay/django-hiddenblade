@@ -6,6 +6,8 @@ from django.contrib.auth.admin import UserAdmin
 
 from .models import Player
 from .forms import PlayerCreationForm, PlayerChangeForm
+from rosters.admin import MembershipInline
+
 # Register your models here.
 
 
@@ -14,6 +16,7 @@ class PlayerAdmin(UserAdmin):
 
     form = PlayerChangeForm
     add_form = PlayerCreationForm
+    inlines = (MembershipInline, )
 
     fieldsets = (
         (None,
@@ -24,6 +27,7 @@ class PlayerAdmin(UserAdmin):
                 'last_name',
                 'phone_number',
                 'home_address',
+                'state'
                 'home_zip',
                 'work_address',
                 'work_zip'
