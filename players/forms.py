@@ -62,7 +62,7 @@ class PlayerChangeForm(forms.ModelForm):
     the user, but replaces the password field with admin's
     password hash display field.
     """
-    password = ReadOnlyPasswordHashField()
+    #password = ReadOnlyPasswordHashField()
     """
     password1 = forms.CharField(
         label='New Password',

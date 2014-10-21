@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^groups/', include("rosters.urls", namespace="rosters")),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^thanks/$', views.ThanksView.as_view(), name="thanks"),
+    url(r'^about/$', views.AboutView.as_view(), name="about"),
     url(
         r'^login/$', 'django.contrib.auth.views.login', {
             'template_name': 'login.html'

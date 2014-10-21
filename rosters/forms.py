@@ -13,13 +13,13 @@ class RosterCreationForm(forms.ModelForm):
     state = USStateSelect()
     zipcode = USZipCodeField(required=False)
 
+
     class Meta:
         model = Roster
         fields = (
             'name',
             'status',
             'description',
-            'members',
             'city',
             'state',
             'zipcode',
@@ -27,7 +27,7 @@ class RosterCreationForm(forms.ModelForm):
         )
 
     def save(self, commit=True):
-        # Save the provided password in hashed format
+
         roster = super(RosterCreationForm, self).save(commit=False)
         if commit:
             roster.save()
@@ -38,6 +38,9 @@ class RosterChangeForm(forms.ModelForm):
     """A form for updating rosters.
     """
 
+    state = USStateSelect()
+    zipcode = USZipCodeField(required=False)
+
     class Meta:
         model = Roster
         fields = (
@@ -47,5 +50,6 @@ class RosterChangeForm(forms.ModelForm):
             'members',
             'city',
             'state',
+            'zipcode',
             'is_active',
         )

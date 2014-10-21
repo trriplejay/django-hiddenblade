@@ -37,19 +37,19 @@ class RosterManager(models.Manager):
 
 class Roster(models.Model):
     # roster name, chosen by whoever is creating it
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, verbose_name='Group name')
     # points to the Player model table through the membership model
     members = models.ManyToManyField(Player, through='Membership')
     # moderator can write a blurb about
-    description = models.TextField()
+    description = models.TextField(blank=True)
     # group status, size of a tweet for future use
-    status = models.CharField(max_length=140)
+    status = models.CharField(max_length=140, blank=True)
     # city where most group members are located
-    city = models.CharField(max_length=50)
+    city = models.CharField(max_length=50, blank=True)
     # state that contains the city
-    state = USStateField()
+    state = USStateField(blank=True)
     # zip code
-    zipcode = USPostalCodeField()
+    zipcode = USPostalCodeField(blank=True)
     # the date this roster was created
     date_created = models.DateField(auto_now_add=True)
     # when a moderator 'deletes' a group, it will be set inactive

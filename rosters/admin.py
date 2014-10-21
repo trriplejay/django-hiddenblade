@@ -26,6 +26,7 @@ class RosterAdmin(admin.ModelAdmin):
                 'status',
                 'city',
                 'state',
+                'zipcode'
 
             )}),
         ('Fields with defaults',

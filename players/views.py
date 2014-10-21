@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render
 from django import forms
 from .forms import PlayerCreationForm, PlayerChangeForm
+from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 
@@ -35,9 +36,9 @@ class PlayerDetailView(LivePlayerMixin, DetailView):
 
 
 class PlayerCreate(FormView):
-    template_name = 'players/player_form.html'
+    template_name = 'players/register.html'
     form_class = PlayerCreationForm
-    success_url = '/thanks/'
+    success_url = '/thanks'
     model = Player
 
    # def get_form(self, form_class):
@@ -73,10 +74,14 @@ class PlayerCreate(FormView):
 
 class PlayerUpdate(UpdateView):
     model = Player
-    template_name = 'players/player_form.html'
+    template_name = 'players/update.html'
     form_class = PlayerChangeForm
-    success_url = 'detail'
+    success_url = 'players:detail'
     slug_field = 'username'
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(PlayerUpdate, self).dispatch(*args, **kwargs)
 
 
 

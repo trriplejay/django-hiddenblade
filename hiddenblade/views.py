@@ -19,3 +19,7 @@ class LoginView(TemplateView):
 
 class LogoutView(TemplateView):
     template_name = "logout.html"
+
+
+class AboutView(TemplateView):
+    template_name = "about.html"
