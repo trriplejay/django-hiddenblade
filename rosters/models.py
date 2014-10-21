@@ -74,8 +74,12 @@ class Roster(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            self.slug = slugify(self.name)
         super(Roster, self).save(*args, **kwargs)
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ("rosters:detail", (), {"slug": self.slug, "pk": self.id})
 
 
 """class MembershipManager(models.Manager):

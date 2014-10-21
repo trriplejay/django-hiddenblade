@@ -11,7 +11,7 @@ urlpatterns = patterns('',
 
     url(r'^$', views.HomepageView.as_view(), name="home"),
     url(r'^players/', include("players.urls", namespace="players")),
-    url(r'^rosters/', include("rosters.urls", namespace="rosters")),
+    url(r'^groups/', include("rosters.urls", namespace="rosters")),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^thanks/$', views.ThanksView.as_view(), name="thanks"),
     url(

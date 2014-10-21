@@ -3,7 +3,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render
 from django import forms
-from admin import PlayerCreationForm, PlayerChangeForm
+from .forms import PlayerCreationForm, PlayerChangeForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 
@@ -31,7 +31,7 @@ class PlayerDetailView(LivePlayerMixin, DetailView):
         ):
             return super(PlayerDetailView, self).dispatch(request, *args, **kwargs)
         else:
-            raise PermissionDenied # HTTP 403
+            raise PermissionDenied  # HTTP 403
 
 
 class PlayerCreate(FormView):

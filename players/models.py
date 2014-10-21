@@ -101,15 +101,15 @@ class Player(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
 
-    state = USStateField()
+    state = USStateField(blank=True)
 
     home_address = models.CharField(max_length=255, blank=True)
-    home_zip = USPostalCodeField()
+    home_zip = USPostalCodeField(blank=True)
 
     work_address = models.CharField(max_length=255, blank=True)
-    work_zip = USPostalCodeField()
+    work_zip = USPostalCodeField(blank=True)
 
-    phone_number = PhoneNumberField()
+    phone_number = PhoneNumberField(blank=True)
 
     phone_validated = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)

@@ -1,0 +1,24 @@
+{% extends "_layouts/base.html" %}
+
+{% block page_title %} List of Groups | {% endblock %}
+
+{% block page_content %}
+<h2>Groups</h2>
+
+<ul>
+    {% for group in roster_list %}
+    <li><a href="{{ group.get_absolute_url }}">
+        {{ group.name }}
+
+    </a></li>{{ group.status }}{{ group.city}}
+
+    {% empty %}
+    <li>no group yet...
+    <a href="{% url 'rosters:create' %}">
+        Start one!
+
+    </a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

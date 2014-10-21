@@ -1,5 +1,7 @@
 from .models import Roster, Membership
 from django import forms
+from localflavor.us.forms import USZipCodeField
+from localflavor.us.forms import USStateSelect
 
 
 class RosterCreationForm(forms.ModelForm):
@@ -7,6 +9,9 @@ class RosterCreationForm(forms.ModelForm):
     A form for creating new rosters. Includes all the required
     fields.
     """
+
+    state = USStateSelect()
+    zipcode = USZipCodeField(required=False)
 
     class Meta:
         model = Roster
@@ -17,6 +22,7 @@ class RosterCreationForm(forms.ModelForm):
             'members',
             'city',
             'state',
+            'zipcode',
 
         )
 

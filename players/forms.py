@@ -1,6 +1,9 @@
 from .models import Player
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from localflavor.us.forms import USPhoneNumberField
+from localflavor.us.forms import USZipCodeField
+from localflavor.us.forms import USStateSelect
 
 
 class PlayerCreationForm(forms.ModelForm):
@@ -16,6 +19,10 @@ class PlayerCreationForm(forms.ModelForm):
         label='Password confirmation',
         widget=forms.PasswordInput
     )
+    phone_number = USPhoneNumberField(required=False)
+    state = USStateSelect()
+    home_zip = USZipCodeField(required=False)
+    work_zip = USZipCodeField(required=False)
 
     class Meta:
         model = Player
@@ -26,6 +33,7 @@ class PlayerCreationForm(forms.ModelForm):
             'password2',
             'phone_number',
             'home_address',
+            'state',
             'home_zip',
             'work_address',
             'work_zip',

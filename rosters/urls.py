@@ -4,5 +4,6 @@ from . import views
 
 urlpatterns = patterns('',
     url(r'^$', views.RosterListView.as_view(), name="list"),
-    url(r'^(?P<pk>/<slug>[\w-]+)/$', views.RosterDetailView.as_view(), name="detail")
+    url(r'^(?P<pk>\d+)/(<slug>[\w-]+)/$', views.RosterDetailView.as_view(), name="detail"),
+    url(r'^create/$', views.RosterCreateView.as_view(), name="create"),
 )
