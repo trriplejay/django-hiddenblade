@@ -62,7 +62,7 @@ class Roster(models.Model):
     #comments = models
     #games = models.ForeignKey(Game)
 
-    #objects = RosterManager()
+    objects = RosterManager()
 
     REQUIRED_FIELDS = ['name', ]
 
