@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
+
 from . import views
 admin.autodiscover()
 urlpatterns = patterns('',
@@ -24,7 +25,20 @@ urlpatterns = patterns('',
         r'^logout/$', 'django.contrib.auth.views.logout', {
             'template_name': 'logout.html'
         }, name="logout"
-    )
+    ),
+    url(
+        r'^password_change/$',
+        'django.contrib.auth.views.password_change', {
+            'template_name': 'password_change.html'
+        }, name="password_change"
+    ),
+    url(
+        r'^password_change_done/$',
+        'django.contrib.auth.views.password_change_done',{
+            'template_name': 'password_change_done.html'
+        },
+        name="password_change_done"
+    ),
 )
 
 urlpatterns += patterns('',

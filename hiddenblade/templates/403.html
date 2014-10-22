@@ -1,4 +1,12 @@
 {% extends "_layouts/base.html" %}
 <h3>403 Forbidden</h3>
 
-<p>You must log in to view profiles.</p>
+{% block page_content %}
+<div class="container">
+{% if user.is_authenticated %}
+    <strong>I'm afraid I can't do that, {{user.username}}</strong>
+{% else %}
+    <strong>You have to be logged in to even <i>attempt</i> to do that...</strong>
+{% endif %}
+</div>
+{% endblock %}

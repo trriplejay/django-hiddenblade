@@ -1,6 +1,9 @@
 {% extends "_layouts/base.html" %}
 {% block page_content %}
 
+    {% if user.is_authenticated %}
+        <h3>already logged in!</h3>
+    {% else %}
     {% if form.errors %}
     <p>Your username and password didn't match. Please try again.</p>
     {% endif %}
@@ -34,5 +37,7 @@
             </div>
         </div>
         </form>
+        <script type="text/javascript">document.getElementById("id_username").focus();</script>
     </div>
+    {% endif %}
 {% endblock %}

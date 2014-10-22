@@ -11,6 +11,13 @@ class RosterManager(models.Manager):
     def live(self):
         return self.model.objects.filter(is_active=True)
 
+    def members_list(self):
+        """
+        returns a queryset of all members of the group
+        """
+        return self.model.objects.filter(is_active=True)
+
+
 """
     def create_roster(
         self,
@@ -49,7 +56,7 @@ class Roster(models.Model):
     # state that contains the city
     state = USStateField(blank=True)
     # zip code
-    zipcode = USPostalCodeField(blank=True)
+    zipcode = models.CharField(max_length=10, blank=True)
     # the date this roster was created
     date_created = models.DateField(auto_now_add=True)
     # when a moderator 'deletes' a group, it will be set inactive
@@ -67,7 +74,7 @@ class Roster(models.Model):
     REQUIRED_FIELDS = ['name', ]
 
     class Meta:
-        ordering = ["name",]
+        ordering = ["name", ]
 
     def __unicode__(self):
         return self.name
@@ -138,7 +145,7 @@ class Membership(models.Model):
 
     #objects = MembershipManager()
 
-    REQUIRED_FIELDS = ['is_moderator', 'invited_by' ]
+    REQUIRED_FIELDS = [ 'invited_by' ]
 
     def __unicode__(self):
         return str(self.id)

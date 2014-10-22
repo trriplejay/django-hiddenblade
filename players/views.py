@@ -38,52 +38,54 @@ class PlayerDetailView(LivePlayerMixin, DetailView):
 class PlayerCreate(FormView):
     template_name = 'players/register.html'
     form_class = PlayerCreationForm
-    success_url = '/thanks'
     model = Player
-
-   # def get_form(self, form_class):
-    """
-    Check if the user already saved contact details. If so, then show
-    the form populated with those details, to let user change them.
-    """
-#        try:
-            #player = Player.objects.get(player=self.request.player)
- #           return form_class(instance=player, **self.get_form_kwargs())
-  #      except Player.DoesNotExist:
-    #        return form_class(**self.get_form_kwargs())
 
     def form_valid(self, form):
         form.instance.user = self.request.user
         form.save()
         return super(PlayerCreate, self).form_valid(form)
 
-"""
-    fields = (
-        'username',
-        'email',
-        'password',
-        'phone_number',
-        'first_name',
-        'last_name',
-        'home_address',
-        'work_address',
-        'date_joined',
-    )
-"""
+    def get_success_url(self):
+        """
+        redirect to the player's profile after updating
+        """
+
+        if 'slug' in self.kwargs:
+            slug = self.kwargs['slug']
+            return reverse_lazy('players:detail', kwargs={'slug': slug})
+        else:
+            # if a player is updating without being able to access the slug
+            # something else probably went wrong, so just send them home
+            return reverse_lazy('home')
 
 
 class PlayerUpdate(UpdateView):
     model = Player
     template_name = 'players/update.html'
-    form_class = PlayerChangeForm
-    success_url = 'players:detail'
     slug_field = 'username'
+    form_class = PlayerChangeForm
+    #success_url = reverse_lazy('detail')
+
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(PlayerUpdate, self).dispatch(*args, **kwargs)
+        if self.request.user.username == kwargs['slug']:
+            return super(PlayerUpdate, self).dispatch(*args, **kwargs)
+        else:
+            raise PermissionDenied  # HTTP 403
 
+    def get_success_url(self):
+        """
+        redirect to the player's profile after updating
+        """
 
+        if 'slug' in self.kwargs:
+            slug = self.kwargs['slug']
+            return reverse_lazy('players:detail', kwargs={'slug': slug})
+        else:
+            # if a player is updating without being able to access the slug
+            # something else probably went wrong, so just send them home
+            return reverse_lazy('home')
 
 
 class PlayerDelete(DeleteView):

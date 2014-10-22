@@ -6,13 +6,26 @@
 {% block page_content %}
 {% if user.username == player.username %}
 	<h3>{{ player.username }}
-    <a href="{% url 'players:update' user.username %}">(edit)</a></h3>
+    <a href="{% url 'players:update' user.username %}">(edit profile)</a></h3>
+
+    <br>
+    <div class="form-row">
 	<p><strong>Email: </strong>{{ player.email }}</p>
-	<p><strong>Phone Number: </strong>{{ player.phone_number }}</p>
+    </div>
+    <p><strong>First name: </strong>{{ player.first_name }}</p>
+    <p><strong>Last name: </strong>{{ player.last_name }}</p>
+	<p><strong>Phone number: </strong>{{ player.phone_number }}</p>
 	<p><strong>Home address: </strong>{{ player.home_address }}</p>
+    <p><strong>State: </strong>{{ player.state }} </p>
+    <p><strong>Home zipcode: </strong>{{ player.home_zip }} </p>
 	<p><strong>Work address: </strong>{{ player.work_address }}</p>
-	<p><strong>First name: </strong>{{ player.first_name }}</p>
-	<p><strong>Last name: </strong>{{ player.last_name }}</p>
+    <p><strong>Work zipcode: </strong>{{ player.work_zip }} </
+
+    <br>
+    <p><strong>
+    Groups you're a member of:
+    </strong></p>
+
 {% else %}
 	<h2>not authorized to view this profile.</h2>
     <p><a href="{%  url 'players:detail' user.username %}">Back to Your Profile</a></p>

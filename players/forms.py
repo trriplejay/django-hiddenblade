@@ -58,21 +58,14 @@ class PlayerCreationForm(forms.ModelForm):
 
 
 class PlayerChangeForm(forms.ModelForm):
-    """A form for updating users. Includes all the fields on
-    the user, but replaces the password field with admin's
-    password hash display field.
     """
-    #password = ReadOnlyPasswordHashField()
+    A form for updating users. Passwords are updated separately
     """
-    password1 = forms.CharField(
-        label='New Password',
-        widget=forms.PasswordInput
-    )
-    password2 = forms.CharField(
-        label='New Password confirmation',
-        widget=forms.PasswordInput
-    )
-    """
+
+    phone_number = USPhoneNumberField(required=False)
+    state = USStateSelect()
+    home_zip = USZipCodeField(required=False)
+    work_zip = USZipCodeField(required=False)
 
     class Meta:
         model = Player
@@ -86,13 +79,15 @@ class PlayerChangeForm(forms.ModelForm):
             'home_zip',
             'work_address',
             'work_zip',
-            'last_login',
         )
 
     def clean_password(self):
-        """
-        Regardless of what the user provides, return the initial value.
-        This is done here, rather than on the field, because the
-        field does not have access to the initial value
-        """
-        return self.initial["password"]
+        # return original password
+        return self.initial['password']
+
+    def save(self, commit=True):
+        user = super(PlayerChangeForm, self).save(commit=False)
+
+        if commit:
+            user.save()
+        return user

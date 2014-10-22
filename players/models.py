@@ -1,19 +1,22 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from django.utils import timezone
 from django.core.validators import RegexValidator
 from localflavor.us.models import USPostalCodeField
 from localflavor.us.models import PhoneNumberField
 from localflavor.us.models import USStateField
 #need to import models.py from the hangouts app eventually
+from django import template
 
-
+register = template.Library()
 
 # Create your models here.
 class PlayerManager(BaseUserManager):
 
     def live(self):
         return self.model.objects.filter(is_active=True)
+
+    def get_number_moderated(self):
+        pass
 
     def create_player(
         self,
@@ -90,26 +93,50 @@ class PlayerManager(BaseUserManager):
 class Player(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(
         max_length=255,
-        verbose_name='email address',
+        verbose_name='Email address',
     )
     username = models.CharField(
         max_length=255,
         unique=True,
-        verbose_name='user name',
+        verbose_name='User name',
     )
 
-    first_name = models.CharField(max_length=50, blank=True)
-    last_name = models.CharField(max_length=50, blank=True)
+    first_name = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name="First name"
+    )
 
-    state = USStateField(blank=True)
+    last_name = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name="Last name"
+    )
 
-    home_address = models.CharField(max_length=255, blank=True)
-    home_zip = USPostalCodeField(blank=True)
+    state = USStateField(blank=True, verbose_name="State")
 
-    work_address = models.CharField(max_length=255, blank=True)
-    work_zip = USPostalCodeField(blank=True)
+    home_address = models.CharField(
+        max_length=255, blank=True,
+        verbose_name="Home address"
+    )
+    home_zip = models.CharField(
+        max_length=10,
+        blank=True,
+        verbose_name="Home zipcode"
+    )
 
-    phone_number = PhoneNumberField(blank=True)
+    work_address = models.CharField(
+        max_length=255, blank=True,
+        verbose_name="Work address"
+    )
+
+    work_zip = models.CharField(
+        max_length=10,
+        blank=True,
+        verbose_name="Work zipcode"
+    )
+
+    phone_number = PhoneNumberField(blank=True, verbose_name="Phone number")
 
     phone_validated = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
@@ -119,7 +146,10 @@ class Player(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
-    date_joined = models.DateTimeField(auto_now_add=True)
+    date_joined = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Date joined"
+    )
 
     objects = PlayerManager()
 

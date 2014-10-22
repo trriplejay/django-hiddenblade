@@ -10,19 +10,10 @@
     <li><a href="{{ group.get_absolute_url }}">
         {{ group.name }}
 
-    </a><p><strong>Current status: </strong>{{ group.status }}</p>
-    <p><strong>Location: </strong>{{ group.city}}</p>
-    </li>
-
+    </a></li>{{ group.status }}{{ group.city}}
 
     {% empty %}
-    <li>no group yet...
-
-    </li>
+    <li>no users yet...</li>
     {% endfor %}
-     <a href="{% url 'rosters:create' %}">
-        Start a group!
-    </a>
-
 </ul>
 {% endblock %}

@@ -1,11 +1,12 @@
 {% extends "_layouts/base.html" %}
 
 {% block page_title %}Thanks{% endblock %}
-{% block page_heading %}{% endblock %}
+
 {% block page_content %}
     <h3>Thanks for registering!</h3>
-  <p><a href="{% url 'players:list' %}">List of Active Players</a></p>
+  <p><a href="{% url 'players:list' %}">Check out the leaderboards</a></p>
+  <p><a href="{% url 'rosters:list' %}">Join a group</a></p>
 
-  <p><a href="{{ player.get_absolute_url }}">View your profile</a></p>
+  <p><a href="{{ user.get_absolute_url }}">View your profile</a></p>
 
 {% endblock %}

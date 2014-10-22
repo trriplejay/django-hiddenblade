@@ -57,3 +57,51 @@ class RosterAdmin(admin.ModelAdmin):
         }),
     )
 
+@admin.register(Membership)
+class MembershipAdmin(admin.ModelAdmin):
+
+    #inlines = (MembershipInline, )
+    #form = RosterChangeForm
+    #add_form = RosterCreationForm
+
+    fieldsets = (
+        (None,
+            {'fields': ('player','roster')}),
+        ('Info',
+            {'fields': (
+                'invited_by',
+            )}),
+        ('Stats',
+            {'fields': (
+                'games_won',
+                'frags',
+                'deaths',
+            )}),
+        ('Fields with defaults',
+            {'fields': (
+                'is_moderator',
+            )}),
+    )
+
+    list_display = [
+        'player',
+        'roster',
+        'roster',
+        'date_joined',
+    ]
+
+    list_filter = ["player", "roster", ]
+    search_fields = ["name", "state", "city", ]
+    ordering = ['date_joined']
+
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': (
+                'player',
+                'roster',
+                'invited_by',
+                'is_moderator',
+            )
+        }),
+    )

@@ -2,6 +2,9 @@ from .models import Roster, Membership
 from django import forms
 from localflavor.us.forms import USZipCodeField
 from localflavor.us.forms import USStateSelect
+from django.views.generic import FormView
+
+
 
 
 class RosterCreationForm(forms.ModelForm):
@@ -12,7 +15,6 @@ class RosterCreationForm(forms.ModelForm):
 
     state = USStateSelect()
     zipcode = USZipCodeField(required=False)
-
 
     class Meta:
         model = Roster
@@ -29,6 +31,8 @@ class RosterCreationForm(forms.ModelForm):
     def save(self, commit=True):
 
         roster = super(RosterCreationForm, self).save(commit=False)
+        #need to set the current user as the creator/moderator of the group
+
         if commit:
             roster.save()
         return roster
@@ -53,3 +57,24 @@ class RosterChangeForm(forms.ModelForm):
             'zipcode',
             'is_active',
         )
+
+
+class MembershipCreationForm(forms.ModelForm):
+
+    class Meta:
+        model = Membership
+        fields = (
+            'player',
+            'roster',
+            'invited_by',
+            'is_moderator'
+        )
+
+    def save(self, commit=True):
+
+        membership = super(MembershipCreationForm, self).save(commit=False)
+        #need to set the current user as the creator/moderator of the group
+
+        if commit:
+            membership.save()
+        return membership

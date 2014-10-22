@@ -10,7 +10,6 @@ from rosters.admin import MembershipInline
 
 # Register your models here.
 
-
 @admin.register(Player)
 class PlayerAdmin(UserAdmin):
 
@@ -20,14 +19,14 @@ class PlayerAdmin(UserAdmin):
 
     fieldsets = (
         (None,
-            {'fields': ('email', 'username', 'password')}),
+            {'fields': ('email', 'username')}),
         ('Personal info',
             {'fields': (
                 'first_name',
                 'last_name',
                 'phone_number',
                 'home_address',
-                'state'
+                'state',
                 'home_zip',
                 'work_address',
                 'work_zip'
