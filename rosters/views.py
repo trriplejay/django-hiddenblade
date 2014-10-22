@@ -3,10 +3,8 @@ from django.views.generic import ListView, DetailView
 from django.views.generic import CreateView, UpdateView, DeleteView, FormView
 from django import forms
 from .forms import RosterCreationForm, RosterChangeForm
-from .forms import MembershipCreationForm, MembershipCreationForm
+from .forms import MembershipCreationForm
 from django.core.urlresolvers import reverse_lazy
-
-
 
 # Create your views here.
 class RosterListView(ListView):

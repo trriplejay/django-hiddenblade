@@ -1,5 +1,8 @@
 from .models import Player
 from django import forms
+
+from django.contrib.auth import authenticate, login
+
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from localflavor.us.forms import USPhoneNumberField
 from localflavor.us.forms import USZipCodeField

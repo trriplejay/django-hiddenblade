@@ -1,12 +1,13 @@
 from .models import Player
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.shortcuts import render
 from django import forms
 from .forms import PlayerCreationForm, PlayerChangeForm
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth import authenticate, login
 
 # Create your views here.
 
@@ -41,22 +42,51 @@ class PlayerCreate(FormView):
     model = Player
 
     def form_valid(self, form):
+        """
+        If we're in here, the form has been validated.  Save the form, and
+        use the username/password to log the user in, now that they have
+        been created
+        """
+
         form.instance.user = self.request.user
         form.save()
+
+
+
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password1']
+
+        user = authenticate(
+            username=username,
+            password=password
+        )
+        if user is not None:
+            if user.is_active:
+                login(self.request, user)
+            else:
+                # users account is disabled, ask if they want to re-enable
+                pass
+        else:
+            # authentication failed...
+            pass
+
         return super(PlayerCreate, self).form_valid(form)
 
     def get_success_url(self):
         """
-        redirect to the player's profile after updating
+        Player was successfully created, and logged in, so redirect
+        to their new profile
         """
 
-        if 'slug' in self.kwargs:
-            slug = self.kwargs['slug']
-            return reverse_lazy('players:detail', kwargs={'slug': slug})
+        if self.request.user.is_authenticated:
+            # Redirect the user's profile
+            return reverse(
+                'players:detail',
+                kwargs={'slug': self.request.user.username}
+            )
         else:
-            # if a player is updating without being able to access the slug
-            # something else probably went wrong, so just send them home
-            return reverse_lazy('home')
+            # user didn't authenticate for some reason, send to home page
+            return reverse('home')
 
 
 class PlayerUpdate(UpdateView):
