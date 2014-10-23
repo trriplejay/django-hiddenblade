@@ -10,9 +10,6 @@ from django.core.urlresolvers import reverse_lazy
 class RosterListView(ListView):
     model = Roster
 
-    def get_queryset(self):
-        return self.model.objects.live()
-
 
 class RosterCreateView(FormView):
     template_name = 'rosters/roster_form.html'
@@ -34,7 +31,7 @@ class RosterCreateView(FormView):
             {
                 'player': player_id,
                 'roster': roster_id,
-                'invited_by': self.request.user.username,
+                'invited_by': self.request.user.id,
                 'is_moderator': True
             })
         newmembership.save()
@@ -62,8 +59,27 @@ class RosterUpdateView(FormView):
     template_name = 'rosters/update.html'
     model = Roster
     form_class = RosterChangeForm
-    succes_url = '/thanks/'
+
+    def get_success_url(self):
+        """
+        redirect to the roster page after updating
+        """
+
+        if 'slug' in self.kwargs and 'pk' in self.kwargs:
+            slug = self.kwargs['slug']
+            pk = self.kwargs['pk']
+            return reverse_lazy(
+                'rosters:detail',
+                kwargs={'pk': pk, 'slug': slug}
+            )
+        else:
+            # if a player is updating without being able to access the slug
+            # something else probably went wrong, so just send them home
+            return reverse_lazy('home')
 
 
 class RosterDetailView(DetailView):
     model = Roster
+
+    def get_queryset(self):
+        return self.model.objects.get_players_members()

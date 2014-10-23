@@ -36,7 +36,7 @@ class PlayerManager(BaseUserManager):
             raise ValueError('You must provide an email address!')
         if not username:
             raise ValueError('You must provide a user name!')
-        now = timezone.now()
+
         player = self.model(
             email=self.normalize_email(email),
             username=username,
@@ -48,7 +48,6 @@ class PlayerManager(BaseUserManager):
             work_address=work_address,
             work_zip=work_zip,
             phone_number=phone_number,
-            last_login=now,
             is_active=True,
         )
 

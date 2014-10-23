@@ -11,42 +11,30 @@ class RosterManager(models.Manager):
     def live(self):
         return self.model.objects.filter(is_active=True)
 
-    def members_list(self):
+    def get_players_members(self):
         """
-        returns a queryset of all members of the group
+        returns a queryset of all members of the group and their
+        associated player object
         """
-        return self.model.objects.filter(is_active=True)
+        return self.model.objects.all().prefetch_related('members')
+        #filter(id=id).prefetch_related('player')
 
-
-"""
-    def create_roster(
-        self,
-        name,
-        members,
-        description='',
-        city='',
-        state='',
-        status='',
-    ):
-
-        roster = self.model(
-            name=name,
-            description=description,
-            city=city,
-            state=state,
-            status=status,
-        )
-
-        roster.save(using=self._db)
-        return roster
-"""
+    def get_moderators(self):
+        return self.model.objects.all().prefetch_related(
+            'members'
+            ).filter(is_moderator=True)
 
 
 class Roster(models.Model):
     # roster name, chosen by whoever is creating it
     name = models.CharField(max_length=255, verbose_name='Group name')
     # points to the Player model table through the membership model
-    members = models.ManyToManyField(Player, through='Membership')
+    members = models.ManyToManyField(
+        Player,
+        through='Membership',
+        through_fields=('roster', 'player')
+    )
+
     # moderator can write a blurb about
     description = models.TextField(blank=True)
     # group status, size of a tweet for future use
@@ -89,30 +77,10 @@ class Roster(models.Model):
         return ("rosters:detail", (), {"slug": self.slug, "pk": self.id})
 
 
-"""class MembershipManager(models.Manager):
+class MembershipManager(models.Manager):
 
     def live(self):
-        return self.model.objects
-
-    def create_membership(
-        self,
-        player,
-        roster,
-        is_moderator,
-        invited_by,
-
-    ):
-
-        membership = self.model(
-            player=player,
-            roster=roster,
-            is_moderator=is_moderator,
-            invited_by=invited_by
-        )
-
-        membership.save(using=self._db)
-        return membership
-"""
+        return self.model.objects.all()
 
 
 class Membership(models.Model):
@@ -123,7 +91,7 @@ class Membership(models.Model):
     """
 
     # key for the player whose membership this is
-    player = models.ForeignKey(Player)
+    player = models.ForeignKey(Player, related_name="player")
     # set to true if this player moderatres the associated roster
     is_moderator = models.BooleanField(default=False)
     # the roster to which this player belongs
@@ -131,7 +99,8 @@ class Membership(models.Model):
     # the date/time at which the player joined (membership was created)
     date_joined = models.DateField(auto_now_add=True)
     # the username of the moderator who invited this player
-    invited_by = models.CharField(max_length=255)
+    invited_by = models.ForeignKey(Player, related_name="inviter")
+    #invited_by = models.CharField(max_length=255)
     # the number of total games this player has won in this roster
     games_won = models.SmallIntegerField(default=0)
     # the number of opponents killed over all games in this roster
@@ -143,9 +112,9 @@ class Membership(models.Model):
     # not sure if this is the best way to model this...
     # in fact, it's very likely not...
 
-    #objects = MembershipManager()
+    objects = MembershipManager()
 
-    REQUIRED_FIELDS = [ 'invited_by' ]
+    REQUIRED_FIELDS = ['invited_by']
 
     def __unicode__(self):
         return str(self.id)

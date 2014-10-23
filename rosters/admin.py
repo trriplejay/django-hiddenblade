@@ -8,12 +8,15 @@ from .forms import RosterChangeForm, RosterCreationForm
 
 class MembershipInline(admin.TabularInline):
     model = Membership
-    extra = 1
+    fk_name = 'player'
+    #extra = 1
+
 
 @admin.register(Roster)
 class RosterAdmin(admin.ModelAdmin):
 
-    inlines = (MembershipInline, )
+    # getting weird error on the inline.. ignoring for now
+#    inlines = (MembershipInline, )
     form = RosterChangeForm
     add_form = RosterCreationForm
 

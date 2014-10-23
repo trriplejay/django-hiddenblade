@@ -4,12 +4,14 @@
 {% block page_title %}New User | {% endblock %}
 
 {% block page_content %}
+<div class="col-sm-8 blog-main">
 {% if registered %}
     <strong>Thank you for registering!</strong>
 
 {% else %}
 
     <h3>Let's get started!</h3>
+    <p>By default, this information is not shared with anyone.  You can share as you see fit, with different permissions for each group that you belong to.  A player can look at your profile only if they share a group with you, and then they can only see the fields that you chose to share with that particular group.</p>
     <form action="" method="post">
 
         {% csrf_token %}
@@ -45,5 +47,5 @@
 
 
 {% endif %}
-
+</div>
 {% endblock %}

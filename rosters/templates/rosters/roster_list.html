@@ -3,7 +3,7 @@
 {% block page_title %} List of Groups | {% endblock %}
 
 {% block page_content %}
-<h2>Groups</h2>
+<h3>Groups <a href="{% url 'rosters:create' %}">(new)</a></h3>
 
 <ul>
     {% for group in roster_list %}
@@ -20,9 +20,7 @@
 
     </li>
     {% endfor %}
-     <a href="{% url 'rosters:create' %}">
-        Start a group!
-    </a>
+
 
 </ul>
 {% endblock %}
