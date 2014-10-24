@@ -5,37 +5,39 @@
 
 {% block page_content %}
 {% if user.is_authenticated %}
-<div class="col-sm-8 blog-main">
+<div class="col-sm-8 dashboard-main">
 <center>
 <h3>{{ roster.name}}</h3>
 <p>Status: {{ roster.status}}</p>
 </center>
 </div>
 
-<div class="col-sm-3 col-sm-offset-1 blog-sidebar">
-          <div class="sidebar-module sidebar-module-inset"
-          style="padding: 15px;
-  background-color: #f5f5f5;
-  border-radius: 4px;">
+<div class="col-sm-3 col-sm-offset-1 ">
+          <div class="sidebar-module sidebar-module-inset">
             <h4>About</h4>
             <p>{{ roster.description }}</p>
+            <h4>Location</h4>
+            <p>{{ roster.city }}, {{roster.state}} {{roster.zipcode}}</p>
+
           </div>
           <div class="sidebar-module">
-            <h4>Members</h4>
+            <h4>Members: {{members.count}}</h4>
             <ol class="list-unstyled">
-              {%for player in roster.members.all %}
-              <li><b><a href="#">
-                {{player.username}}
-                {{membership.date_joined}}
+              {% for member in members %}
+              <li><b><a href="#"  onclick="$('#{{ member.player.id }}').toggle();">
 
-
+                {{member.player.username}}
+                {% if member.is_moderator %}
+                (mod)
+                {% endif %}
+                </a>
+                <div id="{{ member.player.id }}" class='container member-list'>
+                <p>{{member.player.email}}</p>
+                </div>
 
               </a></b></li>
               {% endfor %}
-              {% for member in roster.membership.all %}
-                <li><p>{{member.player.email}}
-                  {{member.date_joined}}</p></li>
-              {% endfor %}
+
             </ol>
           </div>
           <div class="sidebar-module">

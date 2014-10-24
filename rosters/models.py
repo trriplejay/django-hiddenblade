@@ -1,6 +1,5 @@
 from django.db import models
 from players.models import Player
-from localflavor.us.models import USPostalCodeField
 from localflavor.us.models import USStateField
 from django.template.defaultfilters import slugify
 
@@ -11,7 +10,7 @@ class RosterManager(models.Manager):
     def live(self):
         return self.model.objects.filter(is_active=True)
 
-    def get_players_members(self):
+    def get_players(self):
         """
         returns a queryset of all members of the group and their
         associated player object
@@ -23,6 +22,10 @@ class RosterManager(models.Manager):
         return self.model.objects.all().prefetch_related(
             'members'
             ).filter(is_moderator=True)
+
+    def get_memberships(self):
+
+        return Membership.objects.all()
 
 
 class Roster(models.Model):
@@ -81,6 +84,9 @@ class MembershipManager(models.Manager):
 
     def live(self):
         return self.model.objects.all()
+
+    def get_moderators(self):
+        return self.model.objects.filter(is_moderator=True)
 
 
 class Membership(models.Model):

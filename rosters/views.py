@@ -5,6 +5,8 @@ from django import forms
 from .forms import RosterCreationForm, RosterChangeForm
 from .forms import MembershipCreationForm
 from django.core.urlresolvers import reverse_lazy
+from django.core.exceptions import PermissionDenied
+from django.views.generic.detail import SingleObjectMixin
 
 # Create your views here.
 class RosterListView(ListView):
@@ -80,6 +82,30 @@ class RosterUpdateView(FormView):
 
 class RosterDetailView(DetailView):
     model = Roster
+    #template_name = 'rosters/roster_detail.html'
 
     def get_queryset(self):
-        return self.model.objects.get_players_members()
+        return self.model.objects.live()
+
+    def dispatch(self, request, *args, **kwargs):
+        if (request.user.is_authenticated() # &
+#            request.user.id in self.get_queryset()
+        ):
+            return super(RosterDetailView, self).dispatch(request, *args, **kwargs)
+        else:
+            raise PermissionDenied  # HTTP 403
+
+    def get_context_data(self, **kwargs):
+        """
+        Insert the needed objects into the context dict.
+
+        """
+        context = super(RosterDetailView, self).get_context_data(**kwargs)
+
+        context['members'] = Membership.objects.filter(
+            roster_id=context['object'].id
+        )
+        """context['mem_mod'] = Membership.objects.filter(
+            roster_id=context['object'].id, is_moderator=True
+        )"""
+        return context
