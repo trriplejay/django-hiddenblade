@@ -5,14 +5,34 @@
 
 {% block page_content %}
 {% if user.is_authenticated %}
-<div class="col-sm-8 dashboard-main">
+<div class="col-sm-2 col-sm-offset-1 mod-zone" id='mod_only'>
+<div class="sidebar-module sidebar-module-inset">
+<p>if you're a moderator, you should be seeing stuff here</p>
+<ul>
+<li><a href="{% url 'rosters:newgame' roster.id roster.slug %}">start/cancel game</a></li>
+<li>kick player</li>
+<li>edit group details</li>
+</ul>
+</div>
+</div>
+<div class="col-sm-5 dashboard-main">
+
+
 <center>
-<h3>{{ roster.name}}</h3>
-<p>Status: {{ roster.status}}</p>
+  <h3>{{ roster.name}}</h3>
+  <p>Status: {{ roster.status}}</p>
+
+
+  <h4>target information should go here</h4>
 </center>
+
+
 </div>
 
-<div class="col-sm-3 col-sm-offset-1 ">
+
+
+
+<div class="col-sm-3 col-sm-offset-1">
           <div class="sidebar-module sidebar-module-inset">
             <h4>About</h4>
             <p>{{ roster.description }}</p>
@@ -21,7 +41,7 @@
 
           </div>
           <div class="sidebar-module">
-            <h4>Members: {{members.count}}</h4>
+            <h4>Members: {{members.count}} (send invite)</h4>
             <ol class="list-unstyled">
               {% for member in members %}
               <li><b><a href="#"  onclick="$('#{{ member.player.id }}').toggle();">
@@ -33,10 +53,13 @@
                 </a>
                 <div id="{{ member.player.id }}" class='container member-list'>
                 <p>{{member.player.email}}</p>
+                <p>Kills: {{member.frags}}</p>
+                <p>Deaths: {{member.deaths}}</p>
                 </div>
 
               </a></b></li>
               {% endfor %}
+
 
             </ol>
           </div>

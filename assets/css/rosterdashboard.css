@@ -1,0 +1,19 @@
+.member-list {
+  display:none;
+
+}
+.sidebar-module {
+  padding: 15px;
+
+  border-radius: 4px;
+}
+.sidebar-module-inset {
+    background-color: #f5f5f5;
+
+}
+.member-list-mod{
+    color: red;
+}
+.member-list-nonmod{
+    color: blue;
+}

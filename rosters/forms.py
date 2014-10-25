@@ -1,4 +1,4 @@
-from .models import Roster, Membership
+from .models import Roster, Membership, Game
 from django import forms
 from localflavor.us.forms import USZipCodeField
 from localflavor.us.forms import USStateSelect
@@ -69,12 +69,22 @@ class MembershipCreationForm(forms.ModelForm):
             'invited_by',
             'is_moderator'
         )
-
+"""
     def save(self, commit=True):
 
         membership = super(MembershipCreationForm, self).save(commit=False)
-        #need to set the current user as the creator/moderator of the group
 
         if commit:
             membership.save()
         return membership
+"""
+
+
+class GameCreationForm(forms.ModelForm):
+
+    class Meta:
+        model = Game
+        fields = (
+            'mode',
+            'house_rules'
+            )

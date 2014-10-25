@@ -73,6 +73,7 @@ class MembershipAdmin(admin.ModelAdmin):
         ('Info',
             {'fields': (
                 'invited_by',
+                'is_active'
             )}),
         ('Stats',
             {'fields': (
