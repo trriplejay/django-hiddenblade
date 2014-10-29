@@ -4,27 +4,119 @@
 {% block page_title %}{{roster.name}} | {% endblock %}
 
 {% block page_content %}
-{% if user.is_authenticated %}
-<div class="col-sm-2 col-sm-offset-1 mod-zone" id='mod_only'>
-<div class="sidebar-module sidebar-module-inset">
-<p>if you're a moderator, you should be seeing stuff here</p>
-<ul>
-<li><a href="{% url 'rosters:newgame' roster.id roster.slug %}">start/cancel game</a></li>
-<li>kick player</li>
-<li>edit group details</li>
-</ul>
-</div>
-</div>
-<div class="col-sm-5 dashboard-main">
-
-
+{% if user.username %}
+<div class='row'>
+<div class='col-sm-10 col-sm-offset-1' id='gname'>
 <center>
   <h3>{{ roster.name}}</h3>
-  <p>Status: {{ roster.status}}</p>
+  <h4>{{ roster.city }}, {{roster.state}}</h4>
+  <p>Status: {{ roster.status }}</p>
 
-
-  <h4>target information should go here</h4>
 </center>
+</div>
+</div>
+
+<div class='row'>
+<div class="col-sm-3  mod-zone" id='left-bar'><!-- left sidebar -->
+
+  <div class="sidebar-module sidebar-module-inset">
+  {% if thismember.is_moderator %}
+  <h4>Moderator Options:</h4>
+
+  <ul class="list-unstyled">
+    {% if game.is_active %}
+      <li><a class='list-group-item active' style='background-color:maroon;' href="{% url 'rosters:gcancel' roster.id roster.slug game.id %}">cancel game</a>
+    {% else %}
+      <li><a class='list-group-item active' href="{% url 'rosters:newgame' roster.id roster.slug %}">start game</a></li>
+    {% endif %}
+    <li><a class='list-group-item' href="#">edit group details</a></li>
+    <li><a class='list-group-item' href="#">join requests</a></li>
+    <li><a class='list-group-item' href="#">kick player</a></li>
+  </ul>
+  {% endif %}
+  <h4>Your Actions:</h4>
+  <ul class='list-unstyled'>
+  {% if game.is_active %}
+    <li><a class='list-group-item active' style='background-color:maroon;' href="#">Kill</a></li>
+
+    <li><a class='list-group-item' href="#">Drop game</a></li>
+  {% else %}
+    <li><a class='list-group-item' href="#">Deactivate</a></li>
+
+  {% endif %}
+    <li><a class='list-group-item' href="#">Manage privacy</a></li>
+  </ul>
+
+
+  </div>
+  <div class="sidebar-module">
+    <h4>Game Status:</h4>
+    <ul class='list-unstyled'>
+
+    <li><b>Game:</b>
+    {% if game.is_active %}
+      active
+    {% elif game.completed %}
+      complete
+    {% elif game.cancelled %}
+      cancelled
+    {% else %}
+      no game
+    {% endif %}
+    </li>
+    <!-- display active game stats here -->
+    {% if game.is_active %}
+    <li><b>Started:</b> {{ game.start_time }}</li>
+    <li><b>Players:</b> {{living_len}} remaining</li>
+    <li class='dropdown'><b>Deaths:</b>
+      {% if dead_list.0 != '' %}
+        <a href='#' class='dropdown-toggle' data-toggle='dropdown'>{{dead_list|length}}
+          player{% if dead_list|length > 1 %}s
+          {% endif %}
+        </a>
+        <ul class='dropdown-menu'>
+        {% for player in dead_list %}
+          <li>{{player}}</li>
+        {% endfor %}
+        </ul>
+      {% else %}
+        None
+      {% endif %}
+    </li>
+    {% else %}
+
+    <li><a href='#'>click to view stats</a></li>
+
+    {% endif %}
+    </ul>
+  </div>
+  {% if game.is_active %}
+  <div class='sidebar-module'>
+    <h4>Target:</h4>
+  </div>
+  {% endif %}
+
+</div>
+<div class="col-sm-4  col-sm-offset-1 wall-main">
+
+
+
+
+  {% if game.is_active %}
+    <p>there is an active game, started on:{{ game.start_time }}  with {{living_len}} players remaining.</p>
+
+
+    {% if dead_list.0 != '' %}
+    <p>The following players have been killed:</p>
+    <ul>
+      {% for player in dead_list %}
+        <li>{{player}}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  {% else %}
+    <p> no game currently active </p>
+  {% endif %}
 
 
 </div>
@@ -32,30 +124,31 @@
 
 
 
-<div class="col-sm-3 col-sm-offset-1">
+<div class="col-sm-3 col-sm-offset-1" id='right-bar'><!-- right sidebar -->
           <div class="sidebar-module sidebar-module-inset">
             <h4>About</h4>
             <p>{{ roster.description }}</p>
             <h4>Location</h4>
             <p>{{ roster.city }}, {{roster.state}} {{roster.zipcode}}</p>
-
           </div>
           <div class="sidebar-module">
-            <h4>Members: {{members.count}} (send invite)</h4>
+            <h4>Members: {{members.count}} </h4>
             <ol class="list-unstyled">
               {% for member in members %}
-              <li><b><a href="#"  onclick="$('#{{ member.player.id }}').toggle();">
 
-                {{member.player.username}}
+              <li class='dropdown'><b><a href="#" class='dropdown-toggle' data-toggle='dropdown'  >{{member.player.username}}
                 {% if member.is_moderator %}
                 (mod)
+                {% elif not member.is_approved %}
+                (pending)
                 {% endif %}
                 </a>
-                <div id="{{ member.player.id }}" class='container member-list'>
-                <p>{{member.player.email}}</p>
-                <p>Kills: {{member.frags}}</p>
-                <p>Deaths: {{member.deaths}}</p>
-                </div>
+                <ul class='dropdown-menu'>
+                  <li>Wins: {{member.games_won}}</li>
+                  <li>Kills: {{member.frags}}</li>
+                  <li>Deaths: {{member.deaths}}</li>
+                  <li>Total Games: {{member.total_games_played}} </li>
+                </ul>
 
               </a></b></li>
               {% endfor %}
@@ -63,16 +156,10 @@
 
             </ol>
           </div>
-          <div class="sidebar-module">
-            <h4>Elsewhere</h4>
-            <ol class="list-unstyled">
-              <li><a href="#">GitHub</a></li>
-              <li><a href="#">Twitter</a></li>
-              <li><a href="#">Facebook</a></li>
-            </ol>
-          </div>
+
         </div><!-- end sidebar -->
 {% else %}
     <h2>not authorized to view this group.</h2>
 {% endif %}
+</div>
 {% endblock %}

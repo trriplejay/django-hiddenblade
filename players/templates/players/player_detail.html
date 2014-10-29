@@ -9,22 +9,37 @@
     <a href="{% url 'players:update' user.username %}">(edit profile)</a></h3>
 
     <br>
-    <div class="form-row">
-	<p><strong>Email: </strong>{{ player.email }}</p>
-    </div>
-    <p><strong>First name: </strong>{{ player.first_name }}</p>
-    <p><strong>Last name: </strong>{{ player.last_name }}</p>
-	<p><strong>Phone number: </strong>{{ player.phone_number }}</p>
-	<p><strong>Home address: </strong>{{ player.home_address }}</p>
-    <p><strong>State: </strong>{{ player.state }} </p>
-    <p><strong>Home zipcode: </strong>{{ player.home_zip }} </p>
-	<p><strong>Work address: </strong>{{ player.work_address }}</p>
-    <p><strong>Work zipcode: </strong>{{ player.work_zip }} </
 
-    <br>
-    <p><strong>
-    Groups you're a member of:
-    </strong></p>
+    <div class='container'>
+      <div class='col-sm-4'>
+      <ul class='list-unstyled'>
+	  <li><strong>Email: </strong>{{ player.email }}</li>
+
+      <li><strong>First name: </strong>{{ player.first_name }}</li>
+      <li><strong>Last name: </strong>{{ player.last_name }}</li>
+	  <li><strong>Phone number: </strong>{{ player.phone_number }}</li>
+	  <li><strong>Home address: </strong>{{ player.home_address }}</li>
+      <li><strong>State: </strong>{{ player.state }} </li>
+      <li><strong>Home zipcode: </strong>{{ player.home_zip }} </li>
+	  <li><strong>Work address: </strong>{{ player.work_address }}</li>
+      <li><strong>Work zipcode: </strong>{{ player.work_zip }} </li>
+
+      <br>
+
+      </ul>
+      </div>
+      <div class='col-sm-4 col-sm-offset-1'
+      <li><strong>My Groups: ({{members|length}} total)</strong>
+      <div class='container'>
+        {% for member in members %}
+        <ul class='list-unstyled'>
+          <li><a href="{% url 'rosters:detail' member.roster.id member.roster.slug %}">{{member.roster.name}}</a></li>
+
+        </ul>
+        {% endfor %}
+      </div>
+      </div>
+    </div>
 
 {% else %}
 	<h2>not authorized to view this profile.</h2>

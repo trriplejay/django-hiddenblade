@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Roster, Membership
+from .models import Roster, Membership, Game
 from .forms import RosterChangeForm, RosterCreationForm
 
 # Register your models here.
@@ -106,6 +106,49 @@ class MembershipAdmin(admin.ModelAdmin):
                 'roster',
                 'invited_by',
                 'is_moderator',
+            )
+        }),
+    )
+
+@admin.register(Game)
+class GameAdmin(admin.ModelAdmin):
+
+    #inlines = (MembershipInline, )
+    #form = RosterChangeForm
+    #add_form = RosterCreationForm
+
+    fieldsets = (
+        (None,
+            {'fields': ('end_time',)}),
+        ('Info',
+            {'fields': (
+                'living_player_list',
+                'dead_player_list',
+                'house_rules',
+                'completed',
+                'cancelled',
+                'mode',
+                'roster'
+            )}),
+    )
+
+    list_display = [
+        'start_time',
+        'mode',
+    ]
+
+    list_filter = ["start_time", "mode", ]
+    search_fields = ["mode", ]
+    ordering = ['start_time']
+
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': (
+                'roster',
+                'living_player_list',
+                'invited_by',
+                'house_rules',
             )
         }),
     )

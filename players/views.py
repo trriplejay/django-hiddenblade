@@ -3,6 +3,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.core.urlresolvers import reverse_lazy, reverse
 from django.shortcuts import render
 from django import forms
+from rosters.models import Membership
 from .forms import PlayerCreationForm, PlayerChangeForm
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -34,6 +35,30 @@ class PlayerDetailView(LivePlayerMixin, DetailView):
             return super(PlayerDetailView, self).dispatch(request, *args, **kwargs)
         else:
             raise PermissionDenied  # HTTP 403
+
+    def get_context_data(self, **kwargs):
+        """
+        Insert the needed objects into the context.
+        """
+        context = super(PlayerDetailView, self).get_context_data(**kwargs)
+
+        # query for all memberships for this player
+        # and save the roster info for each.
+        members = Membership.objects.get_member_groups(
+            self.request.user.id
+        )
+
+        context['members'] = members
+        """
+        qs = Game.objects.get_recent_game(context['object'].id)
+        result = list(qs[:1])
+        living_players = len(result[0].living_player_list.split(","))
+        dead_players = result[0].dead_player_list.split(",")
+        context['game'] = result[0]
+        context['living_len'] = living_players
+        context['dead_list'] = dead_players
+        """
+        return context
 
 
 class PlayerCreate(FormView):

@@ -32,6 +32,9 @@ class RosterCreationForm(forms.ModelForm):
 
         roster = super(RosterCreationForm, self).save(commit=False)
         #need to set the current user as the creator/moderator of the group
+        #this is done in the view, the roster must be created already
+        #so that a moderator membership can be created specifying this
+        #roster's ID
 
         if commit:
             roster.save()
@@ -86,5 +89,29 @@ class GameCreationForm(forms.ModelForm):
         model = Game
         fields = (
             'mode',
-            'house_rules'
+            'house_rules',
+            'living_player_list'
             )
+
+    def save(self, commit=True):
+
+        self.instance.living_player_list
+
+        game = super(GameCreationForm, self).save(commit=False)
+        # need to set the living player list to be all the active
+        # members of the group
+
+        if commit:
+            game.save()
+        return game
+
+class GameCancelForm(forms.ModelForm):
+    """A form for cancelling an active game.
+    """
+
+    class Meta:
+        model = Game
+        fields = (
+            'cancelled',
+        )
+

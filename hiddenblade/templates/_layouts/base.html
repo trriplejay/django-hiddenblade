@@ -50,9 +50,9 @@
     {% endblock %}
     </div>
 
-    <div class="container">
+
       {% block page_content %}{% endblock %}
-    </div>
+
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="{{ STATIC_URL }}js/bootstrap.js"></script>
@@ -63,7 +63,13 @@
    {% block page_footer %}
     <div class="footer" style="position: absolute; bottom: 0; width: 100%; background-color: #f5f5f5; height=60px">
       <div class="container">
-        <p class="text-muted"><center>watch your back...{{request.path}}</center></p>
+      {% if user.is_authenticated %}
+        <p class="text-muted"><center>watch your back, {{user.username}}...</center></p>
+      {% else %}
+        <p class="text-muted"><center>watch your back...</center></p>
+      {% endif %}
+
+
       </div>
     </div>
     {% endblock %}

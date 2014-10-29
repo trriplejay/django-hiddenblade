@@ -1,0 +1,20 @@
+{% extends "_layouts/base.html" %}
+
+
+{% block page_title %}Cancel game in: {{roster.name}} | {% endblock %}
+{% block page_content %}
+
+
+
+<form action="" method="post">
+{% csrf_token %}
+
+  <div class='fieldWrapper'>
+    <div class="control-label">
+        <p>Are you sure you want to cancel this game?</p>{{form.cancelled}}
+    </div>
+  </div>
+<input type="submit" name="submit" value="Cancel Game" />
+
+</form>
+{% endblock %}

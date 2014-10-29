@@ -24,6 +24,7 @@
                 {% if field.field.required %}
                     <span class="special_class">*</span>
                 {% endif %}
+                {{ field.auto_id.help_text }}
             </div>
             <div class="controls">
 
@@ -37,7 +38,8 @@
 >        <ul>
 
         </ul>
-        <input type="submit" name="submit" value="Create" />
+        <p><input type="submit" name="submit" value="Create" />
+        <a href="{{view.get_success_url}}">Cancel</a></p>
     </form>
     <script type="text/javascript">document.getElementById("id_name").focus();</script>
 
