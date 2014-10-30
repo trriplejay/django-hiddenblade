@@ -138,11 +138,14 @@ class GameCancelForm(forms.ModelForm):
         )
 
 
-class ActionKillForm(forms.ModelForm):
+class ActionCreationForm(forms.ModelForm):
     """A form for a player to kill their target
     """
     class Meta:
         model = Action
         fields = (
+            'source',
+            'target',
             'flavor_text',
+            'game',
         )

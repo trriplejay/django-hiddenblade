@@ -16,18 +16,15 @@
 </div>
 {% if thismember.is_moderator %}
 <div class='row'>
-  <div class='col-sm-6 col-sm-offset-3' id='gname'>
-
-
-  <form action='' method='post'>
-    {% csrf_token %}
-    <input type='text' class='form-control' placeholder="Type new status and press 'enter'" name='new_status'/>
-    <input type='submit' class='btn hidden' value="change status"/>
-  </form>
-
-
+  <div class='col-sm-6 col-sm-offset-3'>
+    <form action='' method='post'>
+      {% csrf_token %}
+      <input type='text' class='form-control' placeholder="Type new status and press 'enter'" name='new_status'/>
+      <input type='submit' class='btn hidden' value="change status"/>
+    </form>
   </div>
 </div>
+<br>
 {% endif %}
 
 
@@ -36,16 +33,16 @@
   <div class="col-sm-3  mod-zone" id='left-bar'>
 
   {% if thismember.is_moderator %}
-    <div class="panel panel-danger">
-      <div class='panel-heading'>
-        <h4 class='panel-title'>Moderator Options:</h4>
-      </div>
-    <div class='panel-body'>
+
+    <div class="sidebar-module sidebar-module-inset">
+    <h4>Moderator Options:</h4>
+
+
       <ul class="list-unstyled">
       {% if game.is_active %}
-        <li><a class='list-group-item active' style='background-color:maroon;' href="{% url 'rosters:gcancel' roster.id roster.slug game.id %}">cancel game</a>
+        <li><a class='list-group-item list-group-item-danger'  href="{% url 'rosters:gcancel' roster.id roster.slug game.id %}">cancel game</a>
       {% else %}
-        <li><a class='list-group-item' href="{% url 'rosters:newgame' roster.id roster.slug %}">start game</a></li>
+        <li><a class='list-group-item list-group-item-success' href="{% url 'rosters:newgame' roster.id roster.slug %}">start game</a></li>
       {% endif %}
         <li><a class='list-group-item' href="{% url 'rosters:rupdate' roster.id roster.slug %}">edit group details</a></li>
         <div class='dropdown theme-dropdown clearfix'>
@@ -55,7 +52,7 @@
           {% for member in members %}
             {% if not member.is_approved %}
             <li role='presentation' style="sidebar-module">
-              <a href='#' role='menuitem'>{{member.player.username}}
+              <a href='#' role='menuitem'><b>{{member.player.username}}</b>
               <form action='' method='post'>
               {% csrf_token %}
 
@@ -74,18 +71,14 @@
         <li><a class='list-group-item' href="#">kick player</a></li>
       </ul>
     </div>
-    </div>
+
   {% endif %}
 
 
-  <div class='panel panel-primary'>
-    <div class='panel-heading'>
-      <h4 class='panel-title'>Your Actions:</h4>
-    </div>
-    <div class='panel-body'>
+  <div class="sidebar-module sidebar-module-inset">
+    <h4>Your Actions:</h4>
       <ul class='list-unstyled'>
       {% if game.is_active %}
-        <li><a class='list-group-item active' style='background-color:maroon;' href="{% url 'rosters:akill' roster.id roster.slug game.id %}">Kill</a></li>
 
         <li><a class='list-group-item' href="#">Drop game</a></li>
       {% else %}
@@ -104,9 +97,15 @@
         <li><a class='list-group-item' href="#">Manage privacy</a></li>
       </ul>
 
+
   </div>
-  </div>
-  <div class="sidebar-module">
+  <div class="sidebar-module" style=
+  {% if game.is_active %} 'background-color:lightgreen'
+  {% elif game.cancelled %} 'background-color:lightcoral'
+  {% elif game.completed %} 'background-color:lightskyblue'
+  {% else %}''
+  {% endif %}>
+
     <h4>Game Status:</h4>
     <ul class='list-unstyled'>
 
@@ -123,6 +122,7 @@
     </li>
     <!-- display active game stats here -->
     {% if game.is_active %}
+    <li><b>Mode:</b> {{game.mode}}</li>
     <li><b>Started:</b> {{ game.start_time }}</li>
     <li><b>Players:</b> {{living_len}} remaining</li>
     <li class='dropdown'><b>Deaths:</b>
@@ -147,40 +147,52 @@
     {% endif %}
     </ul>
   </div>
+
+
+</div>
+
+<div class="col-sm-6 sidebar-module wall-main">
+
   {% if game.is_active %}
-  <div class='sidebar-module'>
-    <h4>Target:</h4>
+  <div class='target-info'>
+    <h4>Your target:</h4>
+    <ul class='list-unstyled'>
+      <li><b>Username:</b> {{target.player.username}}</li>
+      <li><b>Name:</b> {{target.player.get_full_name}}</li>
+      <li><b>Home:</b> {{target.player.home_address}}, {{target.player.home_zip}}</li>
+      <li><b>Work:</b> {{target.player.work_address}}, {{target.player.work_zip}}</li>
+
+      <li><input type='button' class='btn btn-primary btn-block' id='kill-btn' value='Click here to report a kill on your target' onclick="javascript:change('kill-form');"></li>
+      <li>
+        <div id='kill-form' style='display:none;'>
+          <form action='' method="post">
+          {% csrf_token %}
+            <div class='sidebar-module'>
+
+                <textarea style='width:100%; height:100%' placeholder="Describe how your target met their doom..." name='flavor_text'></textarea>
+
+            <input type='submit' class='btn btn-danger btn-block' name='kill_tgt' value="Kill Target"/>
+            </div>
+          </form>
+        </div>
+      </li>
+    </ul>
   </div>
   {% endif %}
 
-</div>
+  <div class='container comments-events'>
+    <h4>
+    <p>comment/event stream</p>
+  </div>
 
-<div class="col-sm-4  col-sm-offset-1 wall-main">
-
-
-  {% if game.is_active %}
-    <p>there is an active game, started on:{{ game.start_time }}  with {{living_len}} players remaining.</p>
-
-
-    {% if dead_list.0 != '' %}
-    <p>The following players have been killed:</p>
-    <ul>
-      {% for player in dead_list %}
-        <li>{{player}}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-  {% else %}
-    <p> no game currently active </p>
-  {% endif %}
-
-
+<br>
 </div>
 
 
 
 
-<div class="col-sm-3 col-sm-offset-1" id='right-bar'><!-- right sidebar -->
+
+<div class="col-sm-3 " id='right-bar'><!-- right sidebar -->
           <div class="sidebar-module sidebar-module-inset">
             <h4>About</h4>
             <p>{{ roster.description }}</p>
@@ -249,5 +261,18 @@
 
 {% endif %}
 </div>
+<script>
+function change(id) {
+
+    var div = document.getElementById(id)
+    if (div.style.display != 'none'){
+        div.style.display = 'none'
+    }
+    else{
+        div.style.display = 'block'
+    }
+
+}
+</script>
 
 {% endblock %}

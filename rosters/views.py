@@ -1,7 +1,7 @@
 import sys
 import random
 from datetime import datetime
-from django.db.models import Count
+from django.db.models import Count, F
 from django.http import HttpResponseRedirect
 from .models import Roster, Membership, Game, Action, Comment
 from django.views.generic import ListView, DetailView
@@ -9,7 +9,7 @@ from django.views.generic import CreateView, UpdateView, DeleteView, FormView
 from django import forms
 from .forms import RosterCreationForm, RosterChangeForm
 from .forms import GameCreationForm, GameCancelForm
-from .forms import ActionKillForm
+from .forms import ActionCreationForm
 from .forms import MembershipCreationForm, MembershipRequestForm, MembershipApprovalForm, MembershipDenyForm
 from django.core.urlresolvers import reverse_lazy
 from django.core.exceptions import PermissionDenied
@@ -110,10 +110,14 @@ class RosterDetailView(DetailView):
 
         return super(RosterDetailView, self).dispatch(request, *args, **kwargs)
 
+    def get_more_context(self, **kwargs):
+        pass
+
     def get_context_data(self, **kwargs):
         """
         Insert the needed objects into the context.
         """
+        print >>sys.stderr, self
         context = super(RosterDetailView, self).get_context_data(**kwargs)
         thismember = self.request.user.username
         #print >>sys.stderr, thismember
@@ -122,31 +126,59 @@ class RosterDetailView(DetailView):
             context['object'].id
         ).order_by('-is_moderator', '-is_active', '-is_approved')
         context['is_member'] = False
+
+        # game logic, for when there is an active or recent game
+        qs = Game.objects.get_recent_game(context['object'].id)
+        # for this view, we only care about the most recent game
+        result = list(qs[:1])
+        if result:
+            # instance of the recent game
+            game_instance = result[0]
+            context['game'] = game_instance
+
+            # if game is active, get more info
+            if game_instance.is_active:
+                living_players = game_instance.living_player_list.split(",")
+                dead_players = game_instance.dead_player_list.split(",")
+
+                context['living_list'] = living_players
+                context['living_len'] = len(living_players)
+
+                context['dead_list'] = dead_players
+                context['dead_len'] = len(dead_players)
+
+                # find the current player's target by searching the
+                # living player list looking for the logged in player.
+                # The target will be the next index in the list
+                src_index = living_players.index(str(thismember))
+                if src_index == len(living_players) - 1:
+                    tgt_index = 0
+                else:
+                    tgt_index = src_index + 1
+                target = living_players[tgt_index]
+                print >>sys.stderr, "target is: ", target
+                context['target'] = target
+
         pendingcount = 0
+
         for member in members:
             if member.player.username == thismember:
                 context['thismember'] = member
                 context['is_member'] = True
             if not member.is_approved:
                 pendingcount += 1
+            if target is not None:
+                if member.player.username == target:
+                    context['target'] = member
 
         context['members'] = members
-        context['form'] = MembershipRequestForm
         context['pending'] = pendingcount
-
-        qs = Game.objects.get_recent_game(context['object'].id)
-        result = list(qs[:1])
-        if result:
-            living_players = len(result[0].living_player_list.split(","))
-            dead_players = result[0].dead_player_list.split(",")
-            context['game'] = result[0]
-            context['living_len'] = living_players
-            context['dead_list'] = dead_players
 
         return context
 
+    @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        print >>sys.stderr, args, kwargs, request.POST
+
         if 'req_approval' in request.POST:
             newapproval = MembershipRequestForm(
                 {
@@ -188,10 +220,116 @@ class RosterDetailView(DetailView):
                 ).update(
                 status=request.POST['new_status']
             )
+        elif 'kill_tgt' in request.POST:
+            """
+            killing a target means the following:
+              update game living/dead players list
+              update source player kill count
+              update target player death count
+              check for end-of-game state (< 2 people left)
+              create an action model instance of this event
+            this means building 3-4 update queries
+            and instantiating 1-2 create forms for actions
+            hopefully nothing goes wrong in the middle....
+            #%TODO best practices for this sort of thing?
+            """
+            #better get the context again
+            self.pk = kwargs.get('pk')
+            context = self.get_context_data()
+            # double check that the game is active, in case
+            # we got here by black magic
+            if context['game'].is_active:
+                #remove target from living players list
+                living_players = context['living_list']
+                living_players.remove(context['target'])
+                #add target to the dead players list
+                dead_players = context['dead_list']
+                dead_players.append(context['target'])
+                #update the game to reflect the change
+                completed = False
+                if len(living_players) < 2:
+                    # game is over, mark game as complete during update
+                    completed = True
+                if not completed:
+                    Game.objects.filter(id=context['game'].id).update(
+                        living_player_list=living_players,
+                        dead_player_list=dead_players,
+                    )
+                else:
+                    Game.objects.filter(id=context['game'].id).update(
+                        living_player_list=living_players,
+                        dead_player_list=dead_players,
+                        completed=completed,
+                        is_active=False,
+                        end_time=datetime.now()
+                    )
 
-            #self.roster.update(status=request.POST['new_status'])
+                src_mem_id = context['source'].id
+                tgt_mem_id = context['target'].id
+                # increment kills and possibly wins for source player
+                # increment deaths and possibly losses for target player
+                if not completed:
+                    Membership.objects.filter(
+                        id=src_mem_id
+                        ).update(
+                        frags=F('frags')+1,
+                    )
+                    Membership.objects.filter(
+                        id=tgt_mem_id
+                        ).update(
+                        deaths=F('deaths')+1,
+                    )
+                else:
+                    Membership.objects.filter(
+                        id=src_mem_id
+                        ).update(
+                        frags=F('frags')+1,
+                        games_won=F('games_won')+1
+                    )
+
+                    Membership.objects.filter(
+                        id=tgt_mem_id
+                        ).update(
+                        deaths=F('deaths')+1,
+                    )
+                    # game is over, so increment every member's
+                    # total games played
+                    Membership.objects.filter(
+                        is_active=True,
+                        roster=self.kwargs['id']
+                        ).update(
+                        total_games_played=F('total_games_played')+1
+                    )
+
+                    # lastly, create an event (possibly two)
+                    # first even states A kills B, second event
+                    # may state that game has come to an end
+                    # instantiate endgame after kill so that the
+                    # timestamp will show the game ending after
+                    # the final assassination
+                    newaction = ActionCreationForm({
+                        'source': context['thismember'].player.id,
+                        'target': context['target'].player.id,
+                        'flavor_text': request.POST['flavor_text'],
+                        'game': context['game'].id
+                    })
+                    newaction.save()
+                    if completed:
+                        the_text = str(
+                            context['thismember'].player.username
+                        ) + " has emerged victorious!"
+
+                        newaction = ActionCreationForm({
+                            'source': context['thismember'].player.id,
+                            'target': context['target'].player.id,
+                            'flavor_text': the_text,
+                            'game': context['game'].id
+                        })
+                        newaction.save()
+
 
         # refresh the same page we're already on
+        print >>sys.stderr, args, kwargs, request.POST
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
@@ -360,7 +498,22 @@ class GameCancelView(UpdateView):
 class ActionCreateView(CreateView):
     template_name = 'rosters/action_form.html'
     model = Action
-    form_class = ActionKillForm
+    form_class = ActionCreationForm
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        #print >>sys.stderr, self.kwargs, self.args
+        theroster = None
+        if 'roster_id' in self.kwargs:
+            theroster = self.kwargs['roster_id']
+        #TODO add a check if theroster still = None after this section
+
+        # check if the logged in user is in this group and is a moderator
+        results = Membership.objects.get_mod_status(theroster, request.user.id).count()
+        if results > 0:
+            return super(GameCancelView, self).dispatch(request, *args, **kwargs)
+        else:
+            raise PermissionDenied  # HTTP 403
 
     def get_context_data(self, **kwargs):
         """
@@ -372,6 +525,7 @@ class ActionCreateView(CreateView):
         thegame = None
         if 'game_id' in self.kwargs:
             thegame = self.kwargs['game_id']
+
 
         context['game'] = Game.objects.get(
             id=thegame,
