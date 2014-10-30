@@ -1,4 +1,4 @@
-from .models import Roster, Membership, Game
+from .models import Roster, Membership, Game, Action, Comment
 from django import forms
 from localflavor.us.forms import USZipCodeField
 from localflavor.us.forms import USStateSelect
@@ -54,11 +54,9 @@ class RosterChangeForm(forms.ModelForm):
             'name',
             'status',
             'description',
-            'members',
             'city',
             'state',
             'zipcode',
-            'is_active',
         )
 
 
@@ -69,18 +67,42 @@ class MembershipCreationForm(forms.ModelForm):
         fields = (
             'player',
             'roster',
-            'invited_by',
-            'is_moderator'
+            'approved_by',
+            'is_moderator',
         )
-"""
-    def save(self, commit=True):
 
-        membership = super(MembershipCreationForm, self).save(commit=False)
 
-        if commit:
-            membership.save()
-        return membership
-"""
+class MembershipRequestForm(forms.ModelForm):
+
+    class Meta:
+        model = Membership
+        fields = (
+            'player',
+            'roster',
+            'is_approved',
+        )
+
+
+class MembershipApprovalForm(forms.ModelForm):
+
+    class Meta:
+        model = Membership
+        fields = (
+            'player',
+            'roster',
+            'is_approved',
+        )
+
+
+class MembershipDenyForm(forms.ModelForm):
+
+    class Meta:
+        model = Membership
+        fields = (
+            'player',
+            'roster',
+            'is_approved',
+        )
 
 
 class GameCreationForm(forms.ModelForm):
@@ -115,3 +137,12 @@ class GameCancelForm(forms.ModelForm):
             'cancelled',
         )
 
+
+class ActionKillForm(forms.ModelForm):
+    """A form for a player to kill their target
+    """
+    class Meta:
+        model = Action
+        fields = (
+            'flavor_text',
+        )

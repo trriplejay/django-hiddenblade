@@ -41,6 +41,13 @@ class RosterManager(models.Manager):
         else:
             return Membership.objects.all()
 
+    def get_approved_members(self, roster_id):
+        if roster_id is not None:
+            return Membership.objects.filter(
+                roster=roster_id,
+                is_approved=True
+            ).prefetch_related('player')
+
     def get_active_members(self, roster_id):
         if roster_id is not None:
             return Membership.objects.filter(
@@ -132,6 +139,12 @@ class MembershipManager(models.Manager):
             is_active=True
         )
 
+    def get_mem_in_group(self, mem_id, roster_id):
+        return self.model.objects.filter(
+            player=mem_id,
+            roster=roster_id
+        )
+
 
 class Membership(models.Model):
     """
@@ -148,9 +161,8 @@ class Membership(models.Model):
     roster = models.ForeignKey(Roster)
     # the date/time at which the player joined (membership was created)
     date_joined = models.DateField(auto_now_add=True)
-    # the username of the moderator who invited this player
-    invited_by = models.CharField(max_length=255, default='')
-    #invited_by = models.CharField(max_length=255)
+    # the username of the moderator who approved this player
+    approved_by = models.CharField(max_length=255, default='')
     # the number of total games this player has won in this roster
     games_won = models.SmallIntegerField(default=0)
     # the number of opponents killed over all games in this roster
@@ -180,7 +192,10 @@ class Membership(models.Model):
 
     objects = MembershipManager()
 
-    REQUIRED_FIELDS = ['invited_by']
+    REQUIRED_FIELDS = ['player', 'roster']
+
+    class Meta:
+        unique_together = ('player', 'roster')
 
     def __unicode__(self):
         return str(self.id)
@@ -356,3 +371,7 @@ class Action(models.Model):
 
     def __unicode__(self):
         return str(self.id)
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ("rosters:detail", (), {"slug": self.slug, "pk": self.roster_id})

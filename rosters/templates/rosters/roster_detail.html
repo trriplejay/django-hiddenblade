@@ -4,50 +4,107 @@
 {% block page_title %}{{roster.name}} | {% endblock %}
 
 {% block page_content %}
-{% if user.username %}
-<div class='row'>
-<div class='col-sm-10 col-sm-offset-1' id='gname'>
-<center>
-  <h3>{{ roster.name}}</h3>
-  <h4>{{ roster.city }}, {{roster.state}}</h4>
-  <p>Status: {{ roster.status }}</p>
-
-</center>
-</div>
-</div>
 
 <div class='row'>
-<div class="col-sm-3  mod-zone" id='left-bar'><!-- left sidebar -->
+  <div class='col-sm-10 col-sm-offset-1' id='gname'>
+  <center>
+    <h3>{{ roster.name}}</h3>
+    <h4>{{ roster.city }}, {{roster.state}}</h4>
+    <p>Status: {{ roster.status }}</p>
+  </div>
+  </center>
+</div>
+{% if thismember.is_moderator %}
+<div class='row'>
+  <div class='col-sm-6 col-sm-offset-3' id='gname'>
 
-  <div class="sidebar-module sidebar-module-inset">
+
+  <form action='' method='post'>
+    {% csrf_token %}
+    <input type='text' class='form-control' placeholder="Type new status and press 'enter'" name='new_status'/>
+    <input type='submit' class='btn hidden' value="change status"/>
+  </form>
+
+
+  </div>
+</div>
+{% endif %}
+
+
+{% if is_member == True and thismember.is_approved %}
+<div class='row'>
+  <div class="col-sm-3  mod-zone" id='left-bar'>
+
   {% if thismember.is_moderator %}
-  <h4>Moderator Options:</h4>
+    <div class="panel panel-danger">
+      <div class='panel-heading'>
+        <h4 class='panel-title'>Moderator Options:</h4>
+      </div>
+    <div class='panel-body'>
+      <ul class="list-unstyled">
+      {% if game.is_active %}
+        <li><a class='list-group-item active' style='background-color:maroon;' href="{% url 'rosters:gcancel' roster.id roster.slug game.id %}">cancel game</a>
+      {% else %}
+        <li><a class='list-group-item' href="{% url 'rosters:newgame' roster.id roster.slug %}">start game</a></li>
+      {% endif %}
+        <li><a class='list-group-item' href="{% url 'rosters:rupdate' roster.id roster.slug %}">edit group details</a></li>
+        <div class='dropdown theme-dropdown clearfix'>
+        <li class='dropdown' data-toggle='dropdown'><a class='list-group-item' class='dropdown-toggle' data-toggle='dropdown' href="#">join requests ({{pending}})</a>
 
-  <ul class="list-unstyled">
-    {% if game.is_active %}
-      <li><a class='list-group-item active' style='background-color:maroon;' href="{% url 'rosters:gcancel' roster.id roster.slug game.id %}">cancel game</a>
-    {% else %}
-      <li><a class='list-group-item active' href="{% url 'rosters:newgame' roster.id roster.slug %}">start game</a></li>
-    {% endif %}
-    <li><a class='list-group-item' href="#">edit group details</a></li>
-    <li><a class='list-group-item' href="#">join requests</a></li>
-    <li><a class='list-group-item' href="#">kick player</a></li>
-  </ul>
+          <ul style='list-unstyled sidebar-module' class='dropdown-menu'>
+          {% for member in members %}
+            {% if not member.is_approved %}
+            <li role='presentation' style="sidebar-module">
+              <a href='#' role='menuitem'>{{member.player.username}}
+              <form action='' method='post'>
+              {% csrf_token %}
+
+                <input type='text' name='mem_id' class='hidden' value='{{member.id}}'/>
+                <input type='submit' class='btn-xs' name='approve' value='Approve'/>
+                <input type='submit' class='btn-xs' name='deny' value='Deny'/>
+              </form>
+              </a>
+            </li>
+            {% endif %}
+          {% endfor %}
+          </ul>
+        </li>
+        </div>
+
+        <li><a class='list-group-item' href="#">kick player</a></li>
+      </ul>
+    </div>
+    </div>
   {% endif %}
-  <h4>Your Actions:</h4>
-  <ul class='list-unstyled'>
-  {% if game.is_active %}
-    <li><a class='list-group-item active' style='background-color:maroon;' href="#">Kill</a></li>
-
-    <li><a class='list-group-item' href="#">Drop game</a></li>
-  {% else %}
-    <li><a class='list-group-item' href="#">Deactivate</a></li>
-
-  {% endif %}
-    <li><a class='list-group-item' href="#">Manage privacy</a></li>
-  </ul>
 
 
+  <div class='panel panel-primary'>
+    <div class='panel-heading'>
+      <h4 class='panel-title'>Your Actions:</h4>
+    </div>
+    <div class='panel-body'>
+      <ul class='list-unstyled'>
+      {% if game.is_active %}
+        <li><a class='list-group-item active' style='background-color:maroon;' href="{% url 'rosters:akill' roster.id roster.slug game.id %}">Kill</a></li>
+
+        <li><a class='list-group-item' href="#">Drop game</a></li>
+      {% else %}
+        {% if thismember.is_active %}
+        <li>
+          <form action='' method='post'>
+          {% csrf_token %}
+            <a class='list-group-item' href="#" name='deactivate'>Deactivate self</a></li>
+          </form>
+        </li>
+        {% else %}
+          <li><a class='list-group-item' href="#">Activate</a></li>
+        {% endif %}
+
+      {% endif %}
+        <li><a class='list-group-item' href="#">Manage privacy</a></li>
+      </ul>
+
+  </div>
   </div>
   <div class="sidebar-module">
     <h4>Game Status:</h4>
@@ -97,9 +154,8 @@
   {% endif %}
 
 </div>
+
 <div class="col-sm-4  col-sm-offset-1 wall-main">
-
-
 
 
   {% if game.is_active %}
@@ -131,35 +187,67 @@
             <h4>Location</h4>
             <p>{{ roster.city }}, {{roster.state}} {{roster.zipcode}}</p>
           </div>
-          <div class="sidebar-module">
-            <h4>Members: {{members.count}} </h4>
+          <br>
+          <div class="panel panel-primary">
+            <div class='panel-heading'>
+            <h4 class='panel-title'>Members: {{members.count}} </h4>
+            </div>
+            <div class='panel-body'>
             <ol class="list-unstyled">
               {% for member in members %}
-
-              <li class='dropdown'><b><a href="#" class='dropdown-toggle' data-toggle='dropdown'  >{{member.player.username}}
+              <div class='dropdown theme-dropdown clearfix'>
+              <li class='dropdown'><b><a href="#" class='dropdown-toggle' data-toggle='dropdown'>{{member.player.username}}
                 {% if member.is_moderator %}
-                (mod)
+                (mod)</a>
                 {% elif not member.is_approved %}
-                (pending)
+                (pending)</a>
+
                 {% endif %}
                 </a>
                 <ul class='dropdown-menu'>
-                  <li>Wins: {{member.games_won}}</li>
-                  <li>Kills: {{member.frags}}</li>
-                  <li>Deaths: {{member.deaths}}</li>
-                  <li>Total Games: {{member.total_games_played}} </li>
+                  <li role='presentation'><a role='menuitem' href="#"><b>Wins:</b> {{member.games_won}}</a></li>
+                  <li role='presentation'><a role='menuitem' href="#"><b>Kills:</b> {{member.frags}}</a></li>
+                  <li role='presentation'><a role='menuitem' href="#"><b>Deaths:</b> {{member.deaths}}</a></li>
+                  <li role='presentation'><a role='menuitem' href="#"><b>Total Games:</b> {{member.total_games_played}}</a></li>
                 </ul>
 
               </a></b></li>
+              </div>
               {% endfor %}
 
 
             </ol>
+            </div>
           </div>
 
         </div><!-- end sidebar -->
 {% else %}
-    <h2>not authorized to view this group.</h2>
+
+  <div class='row'>
+
+  <div class="col-xs-8 col-xs-offset-2" id='unapproved'>
+    <center>
+    <ul class='list-unstyled'>
+    {% if not is_member %}
+    <h3>You must join this group to view its details</h3>
+    <br>
+    <li><form action='' method='post'>
+      {% csrf_token %}
+
+      <input type='submit' class='btn-lg' name='req_approval' value='Request Approval'/>
+    </form></li>
+    {% else %}
+    <li><h4>You requested approval on: {{thismember.date_joined}}</h4></li>
+    {% endif %}
+
+
+    </ul>
+    </center>
+  </div>
+
+  </div>
+
 {% endif %}
 </div>
+
 {% endblock %}

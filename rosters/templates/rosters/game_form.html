@@ -42,17 +42,38 @@
       {{form.house_rules}}
     </div>
 
-    <p><input type="submit" name="submit" value="Start Game" />
-    <a href="{{view.get_success_url}}">Cancel</a></p>
+    <p><input type="submit" class='btn' name="submit" value="Start Game" />
+    <a href="{{view.get_success_url}}" class='btn'>Cancel</a></p>
   </form>
 </div>
 <div class='col-sm-5 col-sm-offset-1'>
-
-<h4>The following active players will be automatically added to the game</h4>
-<ul>
-{% for member in members %}
-<li><p>{{member.player.username}}</p></li>
-{% endfor %}
-</ul>
+  <div class='panel panel-success'>
+    <div class='panel-heading'>
+      <h3 class='panel-title'>Participating Players</h3>
+    </div>
+    <div class='panel-body'>
+      <ul class='list-unstyled'>
+      {% for member in members %}
+        {% if member.is_active %}
+        <li><p>{{member.player.username}}</p></li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class='panel panel-danger'>
+    <div class='panel-heading'>
+      <h3 class='panel-title'>Inactive Players</h3>
+    </div>
+    <div class='panel-body'>
+      <ul class='list-unstyled'>
+      {% for member in members %}
+        {% if not member.is_active %}
+        <li><p>{{member.player.username}}</p></li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
 </div>
 {% endblock %}

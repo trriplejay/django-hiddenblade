@@ -69,11 +69,12 @@ class MembershipAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None,
-            {'fields': ('player','roster')}),
+            {'fields': ('player', 'roster')}),
         ('Info',
             {'fields': (
-                'invited_by',
-                'is_active'
+                'approved_by',
+                'is_active',
+                'is_approved'
             )}),
         ('Stats',
             {'fields': (
@@ -104,7 +105,7 @@ class MembershipAdmin(admin.ModelAdmin):
             'fields': (
                 'player',
                 'roster',
-                'invited_by',
+                'approved_by',
                 'is_moderator',
             )
         }),

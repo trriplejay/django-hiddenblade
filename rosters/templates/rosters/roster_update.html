@@ -1,0 +1,47 @@
+{% extends "_layouts/base.html" %}
+
+
+{% block page_title %}New User | {% endblock %}
+
+{% block page_content %}
+
+
+    <h3>Update your group information</h3>
+    <form action="" method="post">
+
+        {% csrf_token %}
+
+        <div class="fieldWrapper">
+        {% for field in form %}
+        {% if field.errors %}
+            <div class="field-error" for="errors">
+            {{ field.errors }}
+            </div>
+        {% endif %}
+            <div class="control-label" for="{{ field.auto_id }}">
+                {{ field.label_tag }}
+
+                {% if field.field.required %}
+                    <span class="special_class">*</span>
+                {% endif %}
+                {{ field.auto_id.help_text }}
+            </div>
+            <div class="controls">
+
+            {{ field }}
+            </div>
+            <br>
+        {% endfor %}
+        </div>
+
+        </ul
+>        <ul>
+
+        </ul>
+        <p><input type="submit" name="submit" value="Save Changes" />
+        <a href="{{view.get_success_url}}">Cancel</a></p>
+    </form>
+    <script type="text/javascript">document.getElementById("id_name").focus();</script>
+
+
+{% endblock %}
