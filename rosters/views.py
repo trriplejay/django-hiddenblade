@@ -1,5 +1,7 @@
 import sys
 import random
+from itertools import chain
+from operator import attrgetter
 from datetime import datetime
 from django.db.models import Count, F
 from django.http import HttpResponseRedirect
@@ -10,6 +12,7 @@ from django import forms
 from .forms import RosterCreationForm, RosterChangeForm
 from .forms import GameCreationForm, GameCancelForm
 from .forms import ActionCreationForm
+from .forms import CommentCreationForm
 from .forms import MembershipCreationForm, MembershipRequestForm, MembershipApprovalForm, MembershipDenyForm
 from django.core.urlresolvers import reverse_lazy
 from django.core.exceptions import PermissionDenied
@@ -98,6 +101,65 @@ class RosterDetailView(DetailView):
     #template_name = 'rosters/roster_detail.html'
 
     def get_queryset(self):
+        #print >>sys.stderr, self.kwargs
+
+        # query for all members of this roster
+        self.members = self.model.objects.get_all_members(
+            self.kwargs['pk']
+        ).order_by('-is_moderator', '-is_active', '-is_approved')
+
+        # game logic, for when there is an active or recent game
+        qs = Game.objects.get_recent_game(self.kwargs['pk'])
+        # for this view, we only care about the most recent game
+        result = list(qs[:1])
+        self.target_username = None
+        if result:
+            self.game_instance = result[0]
+            if self.game_instance.is_active:
+                if self.game_instance.living_player_list == '':
+                    self.living_players = []
+                else:
+                    self.living_players = self.game_instance.living_player_list.split(",")
+                if self.game_instance.dead_player_list == '':
+                    self.dead_players = []
+                else:
+                    self.dead_players = self.game_instance.dead_player_list.split(",")
+
+                # find the current player's target by searching the
+                # living player list looking for the logged in player.
+                # The target will be the next index in the list
+                try:
+                    src_index = self.living_players.index(
+                        str(self.request.user.username)
+                    )
+                except ValueError:
+                    # player isn't active, so just give them a
+                    # placeholder index.
+                    src_index = 0
+                if src_index == len(self.living_players) - 1:
+                    tgt_index = 0
+                else:
+                    tgt_index = src_index + 1
+                self.target_username = self.living_players[tgt_index]
+        pendingcount = 0
+        for member in self.members:
+            if member.player.username == self.request.user.username:
+                self.current_member = member
+                self.is_member = True
+            if not member.is_approved:
+                pendingcount += 1
+            if self.target_username is not None:
+                if member.player.username == self.target_username:
+                    self.target_member = member
+        self.pendingcount = pendingcount
+
+
+        # get the action queryset
+        actions = Action.objects.get_roster(self.kwargs['pk'])
+        comments = Comment.objects.get_roster(self.kwargs['pk'])
+        chained = chain(actions, comments)
+        self.stream = sorted(chained, key=attrgetter('creation_time'), reverse=True)
+
         return self.model.objects.live()
 
     @method_decorator(login_required)
@@ -110,75 +172,44 @@ class RosterDetailView(DetailView):
 
         return super(RosterDetailView, self).dispatch(request, *args, **kwargs)
 
-    def get_more_context(self, **kwargs):
-        pass
 
     def get_context_data(self, **kwargs):
         """
-        Insert the needed objects into the context.
+        Insert the needed objects and values into the context.
         """
-        print >>sys.stderr, self
+
         context = super(RosterDetailView, self).get_context_data(**kwargs)
-        thismember = self.request.user.username
+        current_username = self.request.user.username
         #print >>sys.stderr, thismember
-        # query for all members of this roster
-        members = self.model.objects.get_all_members(
-            context['object'].id
-        ).order_by('-is_moderator', '-is_active', '-is_approved')
+
         context['is_member'] = False
 
-        # game logic, for when there is an active or recent game
-        qs = Game.objects.get_recent_game(context['object'].id)
-        # for this view, we only care about the most recent game
-        result = list(qs[:1])
-        if result:
-            # instance of the recent game
-            game_instance = result[0]
-            context['game'] = game_instance
+        if self.game_instance is not None:
+            context['game'] = self.game_instance
 
-            # if game is active, get more info
-            if game_instance.is_active:
-                living_players = game_instance.living_player_list.split(",")
-                dead_players = game_instance.dead_player_list.split(",")
+            # if game is active, contextualize more info
+            if self.game_instance.is_active:
 
-                context['living_list'] = living_players
-                context['living_len'] = len(living_players)
+                context['living_list'] = self.living_players
+                context['living_len'] = len(self.living_players)
 
-                context['dead_list'] = dead_players
-                context['dead_len'] = len(dead_players)
+                context['dead_list'] = self.dead_players
+                context['dead_len'] = len(self.dead_players)
+                context['target'] = self.target_member
 
-                # find the current player's target by searching the
-                # living player list looking for the logged in player.
-                # The target will be the next index in the list
-                src_index = living_players.index(str(thismember))
-                if src_index == len(living_players) - 1:
-                    tgt_index = 0
-                else:
-                    tgt_index = src_index + 1
-                target = living_players[tgt_index]
-                print >>sys.stderr, "target is: ", target
-                context['target'] = target
+                #print >>sys.stderr, "target is: ", self.target_username
 
-        pendingcount = 0
-
-        for member in members:
-            if member.player.username == thismember:
-                context['thismember'] = member
-                context['is_member'] = True
-            if not member.is_approved:
-                pendingcount += 1
-            if target is not None:
-                if member.player.username == target:
-                    context['target'] = member
-
-        context['members'] = members
-        context['pending'] = pendingcount
+        context['members'] = self.members
+        context['thismember'] = self.current_member
+        context['is_member'] = self.is_member
+        context['pending'] = self.pendingcount
+        context['stream'] = self.stream
 
         return context
 
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-
+        #print >>sys.stderr, self.request.user.username
         if 'req_approval' in request.POST:
             newapproval = MembershipRequestForm(
                 {
@@ -220,6 +251,15 @@ class RosterDetailView(DetailView):
                 ).update(
                 status=request.POST['new_status']
             )
+        elif 'comment' in request.POST:
+            # create a new comment
+            newcomment = CommentCreationForm({
+                'player': self.request.user.id,
+                'text': request.POST['comment_text'],
+                'roster': self.kwargs['pk']
+            })
+            newcomment.save()
+
         elif 'kill_tgt' in request.POST:
             """
             killing a target means the following:
@@ -233,39 +273,39 @@ class RosterDetailView(DetailView):
             hopefully nothing goes wrong in the middle....
             #%TODO best practices for this sort of thing?
             """
-            #better get the context again
-            self.pk = kwargs.get('pk')
-            context = self.get_context_data()
+            self.get_queryset()
             # double check that the game is active, in case
             # we got here by black magic
-            if context['game'].is_active:
+            if self.game_instance.is_active:
                 #remove target from living players list
-                living_players = context['living_list']
-                living_players.remove(context['target'])
+                self.living_players.remove(str(self.target_username))
                 #add target to the dead players list
-                dead_players = context['dead_list']
-                dead_players.append(context['target'])
+
+                self.dead_players.append(str(self.target_username))
+
+                living_list_formatted = ",".join(self.living_players)
+                dead_list_formatted = ",".join(self.dead_players)
                 #update the game to reflect the change
                 completed = False
-                if len(living_players) < 2:
+                if len(self.living_players) < 2:
                     # game is over, mark game as complete during update
                     completed = True
                 if not completed:
-                    Game.objects.filter(id=context['game'].id).update(
-                        living_player_list=living_players,
-                        dead_player_list=dead_players,
+                    Game.objects.filter(id=self.game_instance.id).update(
+                        living_player_list=living_list_formatted,
+                        dead_player_list=dead_list_formatted,
                     )
                 else:
-                    Game.objects.filter(id=context['game'].id).update(
-                        living_player_list=living_players,
-                        dead_player_list=dead_players,
+                    Game.objects.filter(id=self.game_instance.id).update(
+                        living_player_list=living_list_formatted,
+                        dead_player_list=dead_list_formatted,
                         completed=completed,
                         is_active=False,
                         end_time=datetime.now()
                     )
 
-                src_mem_id = context['source'].id
-                tgt_mem_id = context['target'].id
+                src_mem_id = self.request.user.id
+                tgt_mem_id = self.target_member.id
                 # increment kills and possibly wins for source player
                 # increment deaths and possibly losses for target player
                 if not completed:
@@ -296,40 +336,39 @@ class RosterDetailView(DetailView):
                     # total games played
                     Membership.objects.filter(
                         is_active=True,
-                        roster=self.kwargs['id']
+                        roster=self.kwargs['pk']
                         ).update(
                         total_games_played=F('total_games_played')+1
                     )
 
-                    # lastly, create an event (possibly two)
-                    # first even states A kills B, second event
-                    # may state that game has come to an end
-                    # instantiate endgame after kill so that the
-                    # timestamp will show the game ending after
-                    # the final assassination
+                # lastly, create an event (possibly two)
+                # first even states A kills B, second event
+                # may state that game has come to an end
+                # instantiate endgame after kill so that the
+                # timestamp will show the game ending after
+                # the final assassination
+                newaction = ActionCreationForm({
+                    'source': self.request.user.id,
+                    'target': self.target_member.player.id,
+                    'flavor_text': request.POST['flavor_text'],
+                    'game': self.game_instance.id,
+                    'roster': self.kwargs['pk']
+                })
+                newaction.save()
+                if completed:
+                    the_text = "has emerged victorious!"
+
                     newaction = ActionCreationForm({
-                        'source': context['thismember'].player.id,
-                        'target': context['target'].player.id,
-                        'flavor_text': request.POST['flavor_text'],
-                        'game': context['game'].id
+                        'source': self.request.user.id,
+                        'target': self.request.user.id,
+                        'flavor_text': the_text,
+                        'game': self.game_instance.id,
+                        'roster': self.kwargs['pk']
                     })
                     newaction.save()
-                    if completed:
-                        the_text = str(
-                            context['thismember'].player.username
-                        ) + " has emerged victorious!"
-
-                        newaction = ActionCreationForm({
-                            'source': context['thismember'].player.id,
-                            'target': context['target'].player.id,
-                            'flavor_text': the_text,
-                            'game': context['game'].id
-                        })
-                        newaction.save()
-
 
         # refresh the same page we're already on
-        print >>sys.stderr, args, kwargs, request.POST
+        #print >>sys.stderr, args, kwargs, request.POST
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
@@ -434,8 +473,8 @@ class GameCreateView(FormView):
         theroster = context['roster']
 
         random.shuffle(theList)
-        print >>sys.stderr, theroster
-        print >>sys.stderr, ",".join(theList)
+        #print >>sys.stderr, theroster
+        #print >>sys.stderr, ",".join(theList)
 
         self.results.living_player_list = ",".join(theList)
         self.results.roster = (list(theroster))[0]

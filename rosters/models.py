@@ -204,16 +204,16 @@ class Membership(models.Model):
 class CommentManager(models.Manager):
 
     def live(self):
-        return self.models.objects.filter(is_active=True)
+        return self.model.objects.filter(is_active=True)
 
-    def get_roster_dashboard(self, roster_id):
-        return self.models.objects.filter(
+    def get_roster(self, roster_id):
+        return self.model.objects.filter(
             is_active=True,
             roster=roster_id,
         ).select_related('player')
 
     def get_player_comments(self, player_id):
-        return self.models.objects.filter(
+        return self.model.objects.filter(
             is_active=True,
             player=player_id
         )
@@ -329,6 +329,19 @@ class Game(models.Model):
         ordering = ["start_time", ]
 
 
+class ActionManager(models.Manager):
+
+    def get_roster(self, roster_id):
+        return self.model.objects.filter(
+            roster=roster_id
+        ).select_related('target', 'source')
+
+    def get_game(self, game_id):
+        return self.model.objects.filter(
+            game=game_id
+        ).select_related('target', 'source')
+
+
 class Action(models.Model):
     """
     The game state is made up of a series of actions.  The main action
@@ -347,6 +360,11 @@ class Action(models.Model):
     # an action belongs to a particular instance of "game"
     # a game has many actions
     game = models.ForeignKey(Game)
+    # also keep track of which roster this action took place in
+    # could theoretically find it through the game ID, but storing
+    # one extra key will make queries much more simple with
+    # acceptable extra space usage
+    roster = models.ForeignKey(Roster)
     # the time at which this action took place
     creation_time = models.DateTimeField(auto_now_add=True)
     # the text description of the action. The first action
@@ -365,6 +383,8 @@ class Action(models.Model):
     # %TODO
 
     REQUIRED_FIELDS = ['source', 'target', 'game', 'flavor_text']
+
+    objects = ActionManager()
 
     class Meta:
         ordering = ["creation_time", ]

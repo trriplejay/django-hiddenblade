@@ -117,8 +117,6 @@ class GameCreationForm(forms.ModelForm):
 
     def save(self, commit=True):
 
-        self.instance.living_player_list
-
         game = super(GameCreationForm, self).save(commit=False)
         # need to set the living player list to be all the active
         # members of the group
@@ -126,6 +124,7 @@ class GameCreationForm(forms.ModelForm):
         if commit:
             game.save()
         return game
+
 
 class GameCancelForm(forms.ModelForm):
     """A form for cancelling an active game.
@@ -139,7 +138,7 @@ class GameCancelForm(forms.ModelForm):
 
 
 class ActionCreationForm(forms.ModelForm):
-    """A form for a player to kill their target
+    """A form to create an action, typically a player killing their target
     """
     class Meta:
         model = Action
@@ -147,5 +146,18 @@ class ActionCreationForm(forms.ModelForm):
             'source',
             'target',
             'flavor_text',
+            'roster',
             'game',
+        )
+
+
+class CommentCreationForm(forms.ModelForm):
+    """A form to create a comment
+    """
+    class Meta:
+        model = Comment
+        fields = (
+            'text',
+            'player',
+            'roster',
         )

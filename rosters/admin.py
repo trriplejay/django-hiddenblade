@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Roster, Membership, Game
+from .models import Roster, Membership, Game, Action
 from .forms import RosterChangeForm, RosterCreationForm
 
 # Register your models here.
@@ -9,14 +9,14 @@ from .forms import RosterChangeForm, RosterCreationForm
 class MembershipInline(admin.TabularInline):
     model = Membership
     fk_name = 'player'
-    #extra = 1
+    extra = 1
 
 
 @admin.register(Roster)
 class RosterAdmin(admin.ModelAdmin):
 
     # getting weird error on the inline.. ignoring for now
-#    inlines = (MembershipInline, )
+   # inlines = (MembershipInline, )
     form = RosterChangeForm
     add_form = RosterCreationForm
 
@@ -126,6 +126,7 @@ class GameAdmin(admin.ModelAdmin):
                 'living_player_list',
                 'dead_player_list',
                 'house_rules',
+                'is_active',
                 'completed',
                 'cancelled',
                 'mode',
@@ -138,7 +139,7 @@ class GameAdmin(admin.ModelAdmin):
         'mode',
     ]
 
-    list_filter = ["start_time", "mode", ]
+    list_filter = ["start_time", "mode", 'roster' ]
     search_fields = ["mode", ]
     ordering = ['start_time']
 
@@ -150,6 +151,47 @@ class GameAdmin(admin.ModelAdmin):
                 'living_player_list',
                 'invited_by',
                 'house_rules',
+            )
+        }),
+    )
+
+@admin.register(Action)
+class ActionAdmin(admin.ModelAdmin):
+
+    #inlines = (MembershipInline, )
+    #form = RosterChangeForm
+    #add_form = RosterCreationForm
+
+    fieldsets = (
+        (None,
+            {'fields': ('flavor_text',)}),
+        ('Info',
+            {'fields': (
+                'source',
+                'target',
+                'game',
+            )}),
+    )
+
+    list_display = [
+        'creation_time',
+        'source',
+        'target',
+        'game',
+    ]
+
+    list_filter = ["source", "target", "roster", 'creation_time' ]
+    search_fields = ["source", "target", "roster", 'creation_time', 'flavor_text' ]
+    ordering = ['creation_time']
+
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': (
+                'source',
+                'target',
+                'game',
+                'flavor_text',
             )
         }),
     )

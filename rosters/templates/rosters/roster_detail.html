@@ -73,7 +73,7 @@
     </div>
 
   {% endif %}
-
+  <br>
 
   <div class="sidebar-module sidebar-module-inset">
     <h4>Your Actions:</h4>
@@ -99,6 +99,7 @@
 
 
   </div>
+  <br>
   <div class="sidebar-module" style=
   {% if game.is_active %} 'background-color:lightgreen'
   {% elif game.cancelled %} 'background-color:lightcoral'
@@ -107,6 +108,7 @@
   {% endif %}>
 
     <h4>Game Status:</h4>
+    <div class='sidebar-module'>
     <ul class='list-unstyled'>
 
     <li><b>Game:</b>
@@ -131,11 +133,15 @@
           player{% if dead_list|length > 1 %}s
           {% endif %}
         </a>
+
         <ul class='dropdown-menu'>
+        <div class='sidebar-module'>
         {% for player in dead_list %}
-          <li>{{player}}</li>
+          <li><b>{{player}}</b></li>
         {% endfor %}
+        </div>
         </ul>
+
       {% else %}
         None
       {% endif %}
@@ -146,6 +152,7 @@
 
     {% endif %}
     </ul>
+    </div>
   </div>
 
 
@@ -153,7 +160,7 @@
 
 <div class="col-sm-6 sidebar-module wall-main">
 
-  {% if game.is_active %}
+  {% if game.is_active and thismember.is_active %}
   <div class='target-info'>
     <h4>Your target:</h4>
     <ul class='list-unstyled'>
@@ -180,9 +187,41 @@
   </div>
   {% endif %}
 
-  <div class='container comments-events'>
-    <h4>
-    <p>comment/event stream</p>
+  <div class='sidebar-module comments-events'>
+
+    <h4>comment/event stream</h4>
+    <ul class='list-unstyled'>
+      <li><input type='button' class='btn btn-primary btn-block' id='comment-btn' value='Click here to add a comment' onclick="javascript:change('comment-form');"></li>
+      <li>
+        <div id='comment-form' style='display:none;'>
+          <form action='' method="post">
+          {% csrf_token %}
+            <div class='sidebar-module'>
+
+                <textarea style='width:100%; height:100%' placeholder="add a comment" name='comment_text'></textarea>
+
+            <input type='submit' class='btn btn-primary btn-block' name='comment' value="Submit comment"/>
+            </div>
+          </form>
+        </div>
+      </li>
+    </ul>
+    {% for item in stream %}
+      <div class='sidebar-module'>
+
+      <ul class='list-unstyled'>
+        <li>
+          <em>{{item.target.username}}</em> {{item.flavor_text}}
+          {{item.text}} -<em>{{item.player.username}}</em>
+        </li>
+        <div class='sidebar-module'>
+        <em>{{item.creation_time}}</em>
+        </div>
+      </ul>
+
+      </div>
+    {% endfor %}
+
   </div>
 
 <br>
