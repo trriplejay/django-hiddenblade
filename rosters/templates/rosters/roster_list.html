@@ -3,12 +3,13 @@
 {% block page_title %} List of Groups | {% endblock %}
 
 {% block page_content %}
+<div class='sidebar-module sidebar-module-inset'>
 <h3>Groups <a href="{% url 'rosters:create' %}">(new)</a></h3>
 
-<ul>
+<ul class='list-unstyled'>
     {% for group in roster_list %}
-    <li><a href="{{ group.get_absolute_url }}">
-        {{ group.name }}
+    <li><b><a href="{{ group.get_absolute_url }}">
+        {{ group.name }}</a></b>
 
     </a><p><strong>Current status: </strong>{{ group.status }}</p>
     <p><strong>Location: </strong>{{ group.city}}</p>
@@ -23,4 +24,5 @@
 
 
 </ul>
+</div>
 {% endblock %}

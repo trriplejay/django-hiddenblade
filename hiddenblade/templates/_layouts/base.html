@@ -27,26 +27,26 @@
 
         <ul class="nav navbar-nav navbar-right">
             <li
-            {% if request.path|slice:"1:2" == "a"%}class='active'{%endif%}
+            {% if request.path|slice:"1:6" == "about"%}class='active'{%endif%}
             >
               <a href="{% url 'about' %}">About</a>
             </li>
             <li
-            {% if request.path|slice:"1:2" == "g"%}class='active'{%endif%}
+            {% if request.path|slice:"1:6" == "group"%}class='active'{%endif%}
             >
               <a href="{% url 'rosters:list' %}">Groups</a>
             </li>
             <li
-            {% if request.path|slice:"1:3" == "le"%}class='active'{%endif%}
+            {% if request.path|slice:"1:5" == "lead"%}class='active'{%endif%}
             >
               <a href="#">Leaderboards</a>
             </li>
           {% if user.is_anonymous %}
             <li
-            {% if request.path|slice:"1:2" == "p"%}class='active'{%endif%}
+            {% if request.path|slice:"1:7" == "player"%}class='active'{%endif%}
             ><a href="{% url 'players:register' %}">sign up</a></li>
             <li
-            {% if request.path|slice:"1:3" == "lo"%}class='active'{%endif%}
+            {% if request.path|slice:"1:6" == "login"%}class='active'{%endif%}
             ><a href="{% url 'login' %}">login</a></li>
           {% else %}
             <li class = "dropdown">

@@ -8,7 +8,7 @@
 <div class='row'>
   <div class='col-sm-10 col-sm-offset-1' id='gname'>
   <center>
-    <h3>{{ roster.name}}</h3>
+    <h2>{{ roster.name}}</h2>
     <h4>{{ roster.city }}, {{roster.state}}</h4>
     <p>Status: {{ roster.status }}</p>
   </div>
@@ -71,9 +71,9 @@
         <li><a class='list-group-item' href="#">kick player</a></li>
       </ul>
     </div>
-
-  {% endif %}
   <br>
+  {% endif %}
+
 
   <div class="sidebar-module sidebar-module-inset">
     <h4>Your Actions:</h4>
@@ -100,52 +100,61 @@
 
   </div>
   <br>
-  <div class="sidebar-module" style=
+ <!-- <div class="sidebar-module" style=
   {% if game.is_active %} 'background-color:lightgreen'
   {% elif game.cancelled %} 'background-color:lightcoral'
   {% elif game.completed %} 'background-color:lightskyblue'
   {% else %}''
-  {% endif %}>
+  {% endif %}> -->
 
-    <h4>Game Status:</h4>
-    <div class='sidebar-module'>
-    <ul class='list-unstyled'>
+  <div class='panel
+  {% if game.is_active %} panel-success
+  {% elif game.completed %} panel-primary
+  {% elif game.cancelled %} panel-danger
+  {% else %} panel-default
+  {% endif %}
+  '>
+    <div class='panel-heading'>
+      <h4 class='panel-title'>Game Status:</h4>
+    </div>
+    <div class='panel-body'>
+      <ul class='list-unstyled'>
 
-    <li><b>Game:</b>
-    {% if game.is_active %}
-      active
-    {% elif game.completed %}
-      complete
-    {% elif game.cancelled %}
-      cancelled
-    {% else %}
-      no game
-    {% endif %}
-    </li>
+        <li><b>Game:</b>
+      {% if game.is_active %}
+        active
+      {% elif game.completed %}
+        complete
+      {% elif game.cancelled %}
+        cancelled on {{game.end_time}}
+      {% else %}
+        no game
+      {% endif %}
+        </li>
     <!-- display active game stats here -->
     {% if game.is_active %}
-    <li><b>Mode:</b> {{game.mode}}</li>
-    <li><b>Started:</b> {{ game.start_time }}</li>
-    <li><b>Players:</b> {{living_len}} remaining</li>
-    <li class='dropdown'><b>Deaths:</b>
-      {% if dead_list.0 != '' %}
-        <a href='#' class='dropdown-toggle' data-toggle='dropdown'>{{dead_list|length}}
+        <li><b>Mode:</b> {{game.mode}}</li>
+        <li><b>Started:</b> {{ game.start_time }}</li>
+        <li><b>Players:</b> {{living_len}} remaining</li>
+        <li class='dropdown'><b>Deaths:</b>
+        {% if dead_list %}
+          <a href='#' class='dropdown-toggle' data-toggle='dropdown'>{{dead_list|length}}
           player{% if dead_list|length > 1 %}s
           {% endif %}
-        </a>
+          </a>
 
-        <ul class='dropdown-menu'>
-        <div class='sidebar-module'>
+          <ul class='dropdown-menu'>
+          <div class='sidebar-module'>
         {% for player in dead_list %}
-          <li><b>{{player}}</b></li>
+            <li><b>{{player}}</b></li>
         {% endfor %}
-        </div>
-        </ul>
+          </div>
+          </ul>
 
-      {% else %}
-        None
-      {% endif %}
-    </li>
+        {% else %}
+          None
+        {% endif %}
+        </li>
     {% else %}
 
     <li><a href='#'>click to view stats</a></li>
@@ -206,21 +215,32 @@
         </div>
       </li>
     </ul>
-    {% for item in stream %}
-      <div class='sidebar-module'>
+    <table class='table table-striped'>
+    <tbody>
 
-      <ul class='list-unstyled'>
-        <li>
-          <em>{{item.target.username}}</em> {{item.flavor_text}}
-          {{item.text}} -<em>{{item.player.username}}</em>
-        </li>
+    {% for item in stream %}
+
+      <tr><td>
+          {% if item.target %}
+            <em>{{item.target.username}}</em> {{item.flavor_text}}
+          {% elif item.player %}
+            "{{item.text}}"  -<em>{{item.player.username}}</em>
+          {% endif %}
+
         <div class='sidebar-module'>
         <em>{{item.creation_time}}</em>
         </div>
-      </ul>
 
-      </div>
+
+      </td></tr>
+
+
+
+
     {% endfor %}
+    </tbody>
+
+    </table>
 
   </div>
 

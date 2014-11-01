@@ -120,7 +120,8 @@ class GameCreationForm(forms.ModelForm):
         game = super(GameCreationForm, self).save(commit=False)
         # need to set the living player list to be all the active
         # members of the group
-
+        if self.instance.house_rules == '':
+            self.instance.house_rules = "No rules defined."
         if commit:
             game.save()
         return game

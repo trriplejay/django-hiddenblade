@@ -96,7 +96,7 @@ class RosterUpdateView(UpdateView):
             return reverse_lazy('home')
 
 
-class RosterDetailView(DetailView):
+class RosterDetailView(DetailView, FormView):
     model = Roster
     #template_name = 'rosters/roster_detail.html'
 
@@ -273,6 +273,7 @@ class RosterDetailView(DetailView):
             hopefully nothing goes wrong in the middle....
             #%TODO best practices for this sort of thing?
             """
+            # validate the form first
             self.get_queryset()
             # double check that the game is active, in case
             # we got here by black magic
@@ -484,6 +485,18 @@ class GameCreateView(FormView):
 
         self.results.save()
 
+        # create a new action to represent the start
+        # of the game
+        the_text = "has started the game!"
+        newaction = ActionCreationForm({
+            'source': self.request.user.id,
+            'target': self.request.user.id,
+            'flavor_text': the_text,
+            'game': self.results.id,
+            'roster': self.kwargs['pk']
+        })
+        newaction.save()
+
         return super(GameCreateView, self).form_valid(form)
 
 
@@ -527,10 +540,21 @@ class GameCancelView(UpdateView):
     def form_valid(self, form):
 
         theGame = form.save(commit=False)
-        theGame.completed = False
-        theGame.is_active = False
-        theGame.end_time = datetime.now()
-        theGame.save()
+        if theGame.cancelled is True:
+            theGame.completed = False
+            theGame.is_active = False
+            theGame.end_time = datetime.now()
+            theGame.save()
+
+            the_text = "has cancelled the game!"
+            newaction = ActionCreationForm({
+                'source': self.request.user.id,
+                'target': self.request.user.id,
+                'flavor_text': the_text,
+                'game': self.kwargs['pk'],
+                'roster': self.kwargs['roster_id']
+            })
+            newaction.save()
         return super(GameCancelView, self).form_valid(theGame)
 
 
@@ -564,7 +588,6 @@ class ActionCreateView(CreateView):
         thegame = None
         if 'game_id' in self.kwargs:
             thegame = self.kwargs['game_id']
-
 
         context['game'] = Game.objects.get(
             id=thegame,

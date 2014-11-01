@@ -8,7 +8,7 @@
 
     <h3>Edit Profile</h3>
     <div class='col-sm-6'>
-    <h4>Maintain your personal information in your profile, then separately choose which groups get to see which pieces of your profile</h4>
+    <h4>Be careful what you share online.  Your profile information will be visible only to the people in your groups.</h4>
     <form action="" method="post">
 
         {% csrf_token %}
@@ -43,8 +43,8 @@
         <ul>
 
         </ul>
-        <p><input type="submit" name="submit" value="Save" />
-        <a href="{{view.get_success_url}}">Cancel</a></p>
+        <p><input class='btn btn-primary' type="submit" name="submit" value="Save" />
+        <a class='btn btn-default' href="{{view.get_success_url}}">Cancel</a></p>
     </form>
     </div>
 {% else %}

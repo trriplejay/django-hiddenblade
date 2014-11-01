@@ -5,13 +5,18 @@
 
 {% block page_content %}
 {% if user.username == player.username %}
+<div class='row'>
+<div class='col-sm-4 col-sm-offset-1'>
 	<h3>{{ player.username }}
-    <a href="{% url 'players:update' user.username %}">(edit profile)</a></h3>
+    <a class='btn btn-warning' href="{% url 'players:update' user.username %}">(edit profile)</a></h3>
 
     <br>
 
-    <div class='container'>
-      <div class='col-sm-4'>
+</div>
+</div>
+<div class='row'>
+<div class='col-sm-4 col-sm-offset-1'>
+      <div class='sidebar-module sidebar-module-inset'>
       <ul class='list-unstyled'>
 	  <li><strong>Email: </strong>{{ player.email }}</li>
 
@@ -28,18 +33,24 @@
 
       </ul>
       </div>
-      <div class='col-sm-4 col-sm-offset-1'
-      <li><strong>My Groups: ({{members|length}} total)</strong>
-      <div class='container'>
-        {% for member in members %}
-        <ul class='list-unstyled'>
-          <li><a href="{% url 'rosters:detail' member.roster.id member.roster.slug %}">{{member.roster.name}}</a></li>
 
-        </ul>
-        {% endfor %}
-      </div>
-      </div>
+</div>
+<div class='col-sm-4 col-sm-offset-1'>
+  <div class='panel panel-primary'>
+    <div class='panel-heading'>
+      <h3 class='panel-title'>My Groups: ({{members|length}} total)</h3>
     </div>
+    <div class='panel-body'>
+      <ul class='list-unstyled'>
+      {% for member in members %}
+        <li><a href="{% url 'rosters:detail' member.roster.id member.roster.slug %}">{{member.roster.name}}</a></li>
+      {% endfor %}
+      </ul>
+    </div>
+
+  </div>
+</div>
+
 
 {% else %}
 	<h2>not authorized to view this profile.</h2>
