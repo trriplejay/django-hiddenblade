@@ -1,12 +1,47 @@
 {% extends "_layouts/base.html" %}
 
 {% block page_content %}
-  <a href="{% url 'rosters:list' %}">Try joining a group!</a>
+
+<div class='col-sm-10 col-sm-offset-1'>
+<div class='sidebar-module sidebar-module-inset'>
+  <h3>Welcome to Hiddenblade!</h3>
+  <br>
+  <p>A web page for managing and organizing Live Action Games, such as <em><a href='http://en.wikipedia.org/wiki/Assassin_(game)'>assassins</a></em>.  </p>
+
+  <p>You can start off by <a href="{% url 'rosters:list' %}">looking for a group</a> to join.  You'll need the moderator's permission before you can play.  If you've already got some friends who are ready to play, <a href="{% url 'rosters:create' %}">create a group</a> of your own!</p>
+
+  <p>If this is your first time on the site, your first step should be to <a href="{% url 'players:register'%}">create an account!</a></p>
+
+  <p>Though this website is designed to help moderate this style of game, it will still rely heavily on the honor system, so to ensure a good time is had by all, be honest and be excellent to each other!</p>
+
+  <p><a href="{% url 'about' %}">See the about</a> page for information on planned enhancements</p>
+
+  <p>Continue on for game descriptions</p>
+</div>
+<br>
+<div class='sidebar-module sidebar-module-inset'>
+  <h4>Assassins (standard):</h4>
+  <div class='sidebar-module'>
+    <p>When starting a game, all players that are members of the group and are currently active are automatically added to the list of participants.</p>
+
+    <p>The list of participants is then randomized, and everyone is assigned a target.  Not even the group admins can look at the assignments (that means they can play, too!)</p>
+
+    <p>When a player kills their target, they will receive a new target, which was their old target's target...   target.</p>
+
+    <p>When there is only one player remaining, they are declared the winner and the game comes to an end.</p>
+
+    <p>Detailed game stats can be viewed after the game's completion, including who killed who in what order.</p>
+
+    <p>When an event occurs (game start, game end, player killed) the details of the event will be posted for the group to see.  Be creative with your descriptions!</p>
+
+  </div>
 
   {% if user.is_authenticated %}
+
 
   {% else %}
 
   {% endif %}
-
+</div>
+</div>
 {% endblock %}

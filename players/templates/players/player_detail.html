@@ -8,7 +8,7 @@
 <div class='row'>
 <div class='col-sm-4 col-sm-offset-1'>
 	<h3>{{ player.username }}
-    <a class='btn btn-warning' href="{% url 'players:update' user.username %}">(edit profile)</a></h3>
+   </h3>
 
     <br>
 
@@ -29,10 +29,12 @@
 	  <li><strong>Work address: </strong>{{ player.work_address }}</li>
       <li><strong>Work zipcode: </strong>{{ player.work_zip }} </li>
 
-      <br>
+
 
       </ul>
       </div>
+      <br>
+       <a class='btn btn-primary btn-block' href="{% url 'players:update' user.username %}">(edit profile)</a>
 
 </div>
 <div class='col-sm-4 col-sm-offset-1'>
@@ -43,7 +45,7 @@
     <div class='panel-body'>
       <ul class='list-unstyled'>
       {% for member in members %}
-        <li><a href="{% url 'rosters:detail' member.roster.id member.roster.slug %}">{{member.roster.name}}</a></li>
+        <li><a class='list-group-item list-group-item-primary' href="{% url 'rosters:detail' member.roster.id member.roster.slug %}">{{member.roster.name}}</a></li>
       {% endfor %}
       </ul>
     </div>

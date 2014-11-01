@@ -4,14 +4,15 @@
 {% block page_title %}New User | {% endblock %}
 
 {% block page_content %}
-<div class="col-sm-8 blog-main">
+<div class="col-sm-8 col-sm-offset-1 blog-main">
+<div class='sidebar-module sidebar-module-inset'>
 {% if registered %}
     <strong>Thank you for registering!</strong>
 
 {% else %}
 
     <h3>Let's get started!</h3>
-    <p>By default, this information is not shared with anyone.  You can share as you see fit, with different permissions for each group that you belong to.  A player can look at your profile only if they share a group with you, and then they can only see the fields that you chose to share with that particular group.</p>
+    <p>By default, this information is not shared with anyone.  While in an active game, any player who has you as their target will be able to see your profile information, so it is best to assume that everyone in your groups will have access to your information as some point.</p>
     <form action="" method="post">
 
         {% csrf_token %}
@@ -34,18 +35,16 @@
 
             {{ field }}
             </div>
-            <br>
+
         {% endfor %}
         </div>
 
-        </ul>
-        <ul>
-
-        </ul>
-        <input type="submit" name="submit" value="Join" />
+        <br>
+        <input class='btn btn-primary' type="submit" name="submit" value="Join" />
     </form>
 
 
 {% endif %}
+</div>
 </div>
 {% endblock %}
