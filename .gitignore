@@ -2,6 +2,5 @@
 *.swp
 hiddenblade/settings/local.py
 hiddenblade/settings/testing.py
-players/tests/*
 .coverage
 htmlcov/*
