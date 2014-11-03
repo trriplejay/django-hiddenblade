@@ -45,6 +45,7 @@
         <li><a class='list-group-item list-group-item-success' href="{% url 'rosters:newgame' roster.id roster.slug %}">start game</a></li>
       {% endif %}
         <li><a class='list-group-item' href="{% url 'rosters:rupdate' roster.id roster.slug %}">edit group details</a></li>
+        {% if pending > 0 %}
         <div class='dropdown theme-dropdown clearfix'>
         <li class='dropdown' data-toggle='dropdown'><a class='list-group-item' class='dropdown-toggle' data-toggle='dropdown' href="#">join requests ({{pending}})</a>
 
@@ -57,8 +58,8 @@
               {% csrf_token %}
 
                 <input type='text' name='mem_id' class='hidden' value='{{member.id}}'/>
-                <input type='submit' class='btn-xs' name='approve' value='Approve'/>
-                <input type='submit' class='btn-xs' name='deny' value='Deny'/>
+                <input type='submit' class='btn-xs-primary' name='approve' value='Approve'/>
+                <input type='submit' class='btn-xs-default' name='deny' value='Deny'/>
               </form>
               </a>
             </li>
@@ -67,7 +68,7 @@
           </ul>
         </li>
         </div>
-
+        {% endif %}
         <li><a class='list-group-item' href="#">kick player</a></li>
       </ul>
     </div>
@@ -77,6 +78,8 @@
 
   <div class="sidebar-module sidebar-module-inset">
     <h4>Your Actions:</h4>
+    <form action='' method='post'>
+      {% csrf_token %}
       <ul class='list-unstyled'>
       {% if game.is_active %}
 
@@ -84,28 +87,22 @@
       {% else %}
         {% if thismember.is_active %}
         <li>
-          <form action='' method='post'>
-          {% csrf_token %}
-            <a class='list-group-item' href="#" name='deactivate'>Deactivate self</a></li>
+            <input  class='std-padding btn-default' type='submit' name="deactivate" style='width:100%;text-align:left' value="Deactivate self"/>
           </form>
         </li>
         {% else %}
-          <li><a class='list-group-item' href="#">Activate</a></li>
+        <li>
+            <input  class='std-padding btn-default' type='submit' name="activate_self" style='width:100%;text-align:left' value="Activate self"/>
+        </li>
         {% endif %}
 
       {% endif %}
         <li><a class='list-group-item' href="#">Manage privacy</a></li>
       </ul>
-
+    </form>
 
   </div>
   <br>
- <!-- <div class="sidebar-module" style=
-  {% if game.is_active %} 'background-color:lightgreen'
-  {% elif game.cancelled %} 'background-color:lightcoral'
-  {% elif game.completed %} 'background-color:lightskyblue'
-  {% else %}''
-  {% endif %}> -->
 
   <div class='panel
   {% if game.is_active %} panel-success
@@ -234,9 +231,6 @@
 
       </td></tr>
 
-
-
-
     {% endfor %}
     </tbody>
 
@@ -246,10 +240,6 @@
 
 </div>
 <br>
-
-
-
-
 
 <div class="col-sm-3 " id='right-bar'><!-- right sidebar -->
           <div class="sidebar-module sidebar-module-inset">
@@ -305,7 +295,7 @@
     <li><form action='' method='post'>
       {% csrf_token %}
 
-      <input type='submit' class='btn-lg' name='req_approval' value='Request Approval'/>
+      <input type='submit' class='btn btn-lg btn-primary' name='req_approval' value='Request Approval'/>
     </form></li>
     {% else %}
     <li><h4>You requested approval on: {{thismember.date_joined}}</h4></li>

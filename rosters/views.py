@@ -114,6 +114,7 @@ class RosterDetailView(DetailView, FormView):
         results = list(qs[:1])
         self.target_username = None
         self.game_instance = None
+
         if results:
             self.game_instance = results[0]
             if self.game_instance.is_active:
@@ -143,6 +144,9 @@ class RosterDetailView(DetailView, FormView):
                     tgt_index = src_index + 1
                 self.target_username = self.living_players[tgt_index]
         pendingcount = 0
+        self.current_member = None
+        self.is_member = False
+        self.target_member = None
         for member in self.members:
             if member.player.username == self.request.user.username:
                 self.current_member = member
@@ -230,7 +234,10 @@ class RosterDetailView(DetailView, FormView):
             )
 
         elif 'deny' in request.POST:
-            # if denied, delete the membership
+            # if denied, delete the membership?
+            # best way to handle this would be to have a
+            # separate model for denied memberships
+            # %TODO
             pass
 
         elif 'deactivate' in request.POST:
@@ -244,6 +251,16 @@ class RosterDetailView(DetailView, FormView):
                 ).update(
                 is_active=False
             )
+        elif 'activate_self' in request.POST:
+            player_id = self.request.user.id
+            rost_id = self.kwargs['pk']
+            Membership.objects.filter(
+                player=player_id,
+                roster=rost_id
+                ).update(
+                is_active=True
+            )
+
         elif 'new_status' in request.POST:
             # moderator is making a change to the
             # status of the group
