@@ -60,7 +60,7 @@ class RosterCreateView(FormView):
                 'is_moderator': True
             })
         newmembership.save()
-        return super(RosterCreateView, self).form_valid(self.roster)
+        return super(RosterCreateView, self).form_valid(theroster)
 
     def get_success_url(self):
         """
@@ -111,10 +111,11 @@ class RosterDetailView(DetailView, FormView):
         # game logic, for when there is an active or recent game
         qs = Game.objects.get_recent_game(self.kwargs['pk'])
         # for this view, we only care about the most recent game
-        result = list(qs[:1])
+        results = list(qs[:1])
         self.target_username = None
-        if result:
-            self.game_instance = result[0]
+        self.game_instance = None
+        if results:
+            self.game_instance = results[0]
             if self.game_instance.is_active:
                 if self.game_instance.living_player_list == '':
                     self.living_players = []

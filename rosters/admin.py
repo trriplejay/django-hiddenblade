@@ -91,7 +91,6 @@ class MembershipAdmin(admin.ModelAdmin):
     list_display = [
         'player',
         'roster',
-        'roster',
         'date_joined',
     ]
 

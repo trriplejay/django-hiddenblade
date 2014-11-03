@@ -15,7 +15,7 @@ class PlayerManager(BaseUserManager):
     def live(self):
         return self.model.objects.filter(is_active=True)
 
-"""
+
     def create_player(
         self,
         email,
@@ -82,7 +82,7 @@ class PlayerManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-"""
+
 class Player(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(
         max_length=255,
