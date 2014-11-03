@@ -19,11 +19,7 @@
 
         <div class="fieldWrapper">
         {% for field in form %}
-        {% if field.errors %}
-            <div class="field-error" for="errors">
-            {{ field.errors }}
-            </div>
-        {% endif %}
+
             <div class="control-label" for="{{ field.auto_id }}">
                 {{ field.label_tag }}
 
@@ -31,6 +27,11 @@
                     <span class="special_class">*</span>
                 {% endif %}
             </div>
+             {% if field.errors %}
+            <div class="field-error" for="errors">
+            {{ field.errors }}
+            </div>
+            {% endif %}
             <div class="controls">
 
             {{ field }}

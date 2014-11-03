@@ -1,7 +1,6 @@
 from .models import Player
 from django import forms
 
-from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from localflavor.us.forms import USPhoneNumberField
 from localflavor.us.forms import USZipCodeField
 from localflavor.us.forms import USStateSelect
@@ -60,7 +59,7 @@ class PlayerCreationForm(forms.ModelForm):
 
 class PlayerChangeForm(forms.ModelForm):
     """
-    A form for updating users. Passwords are updated separately
+    A form for updating user details. Passwords are updated separately
     """
 
     phone_number = USPhoneNumberField(required=False)

@@ -15,9 +15,7 @@ class PlayerManager(BaseUserManager):
     def live(self):
         return self.model.objects.filter(is_active=True)
 
-    def get_number_moderated(self):
-        pass
-
+"""
     def create_player(
         self,
         email,
@@ -32,10 +30,6 @@ class PlayerManager(BaseUserManager):
         phone_number='',
         password=None
     ):
-        if not email:
-            raise ValueError('You must provide an email address!')
-        if not username:
-            raise ValueError('You must provide a user name!')
 
         player = self.model(
             email=self.normalize_email(email),
@@ -88,7 +82,7 @@ class PlayerManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-
+"""
 class Player(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(
         max_length=255,
@@ -181,11 +175,11 @@ class Player(AbstractBaseUser, PermissionsMixin):
 
     @is_email_verified.setter
     def is_email_verified(self, value):
-        self.is_email_verified = value
+        self.email_verified = value
 
     @is_phone_validated.setter
     def is_phone_validated(self, value):
-        self.is_phone_validated = value
+        self.phone_validated = value
 
     @models.permalink
     def get_absolute_url(self):

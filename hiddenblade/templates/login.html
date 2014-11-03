@@ -1,9 +1,12 @@
 {% extends "_layouts/base.html" %}
 {% block page_content %}
 
+  <div class='col-sm-6 '>
+  <div class='sidebar-module sidebar-module-inset'>
     {% if user.is_authenticated %}
         <h3>already logged in!</h3>
     {% else %}
+
     {% if form.errors %}
     <p>Your username and password didn't match. Please try again.</p>
     {% endif %}
@@ -33,12 +36,18 @@
         <br>
         <div class="control-group">
             <div class="controls">
-                <button type="submit" class="btn">Login</button>
+                <button type="submit" class="btn btn-primary">Login</button>
                 <input type="hidden" name="next" value="{{ next }}" />
+                <a href="{% url 'home' %}" class='btn btn-default'>cancel</a>
+                <h4>No account?</h4>
+                <a class='btn btn-primary ' href="{% url 'players:register' %}">Sign Up!</a>
             </div>
         </div>
         </form>
         <script type="text/javascript">document.getElementById("id_username").focus();</script>
     </div>
+
     {% endif %}
+  </div>
+  </div>
 {% endblock %}

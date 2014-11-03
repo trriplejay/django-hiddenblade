@@ -26,12 +26,12 @@ class PlayerDetailView(LivePlayerMixin, DetailView):
     model = Player
     slug_field = 'username'
 
+    @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        if (request.user.is_authenticated() &
-            request.path_info.find(
-                request.user.username
-            ) != -1
-        ):
+        # need to test if currently logged in player is the
+        # same as the profile we're attempting to load
+
+        if kwargs['slug'] == request.user.username:
             return super(PlayerDetailView, self).dispatch(request, *args, **kwargs)
         else:
             raise PermissionDenied  # HTTP 403
@@ -108,8 +108,8 @@ class PlayerCreate(FormView):
                 kwargs={'slug': self.request.user.username}
             )
         else:
-            # user didn't authenticate for some reason, send to home page
-            return reverse('home')
+            # user didn't authenticate for some reason, send to login page
+            return reverse('login')
 
 
 class PlayerUpdate(UpdateView):
@@ -145,24 +145,3 @@ class PlayerDelete(DeleteView):
     model = Player
     success_url = reverse_lazy('players')
 
-"""
-class PlayerFormView(FormView):
-    form_class = PlayerForm
-    template_name = "players/register.html"
-    intial = {'key': 'value'}
-    success_url = '/thanks/'
-
-    def form_valid(self, form):
-        return super(PlayerFormView, self).form_valid(form)
-
-    def get(self, request, *args, **kwargs):
-        form = self.form_class(initial=self.initial)
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            return HttpResponseRedirect('/success/')
-
-        return render(request, self.template_name, {'form': form})
-"""

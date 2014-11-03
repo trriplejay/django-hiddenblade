@@ -4,59 +4,69 @@
 {% block page_title %}{{player.username}}'s Profile | {% endblock %}
 
 {% block page_content %}
-{% if user.username == player.username %}
-<div class='row'>
-<div class='col-sm-4 col-sm-offset-1'>
-	<h3>{{ player.username }}
-   </h3>
+{% if user.is_authenticated %}
+  {% if user.username == player.username %}
+  <div class='row'>
+  <div class='col-sm-4 col-sm-offset-1'>
+  	<h3>{{ player.username }}
+     </h3>
 
-    <br>
-
-</div>
-</div>
-<div class='row'>
-<div class='col-sm-4 col-sm-offset-1'>
-      <div class='sidebar-module sidebar-module-inset'>
-      <ul class='list-unstyled'>
-	  <li><strong>Email: </strong>{{ player.email }}</li>
-
-      <li><strong>First name: </strong>{{ player.first_name }}</li>
-      <li><strong>Last name: </strong>{{ player.last_name }}</li>
-	  <li><strong>Phone number: </strong>{{ player.phone_number }}</li>
-	  <li><strong>Home address: </strong>{{ player.home_address }}</li>
-      <li><strong>State: </strong>{{ player.state }} </li>
-      <li><strong>Home zipcode: </strong>{{ player.home_zip }} </li>
-	  <li><strong>Work address: </strong>{{ player.work_address }}</li>
-      <li><strong>Work zipcode: </strong>{{ player.work_zip }} </li>
-
-
-
-      </ul>
-      </div>
       <br>
-       <a class='btn btn-primary btn-block' href="{% url 'players:update' user.username %}">(edit profile)</a>
-
-</div>
-<div class='col-sm-4 col-sm-offset-1'>
-  <div class='panel panel-primary'>
-    <div class='panel-heading'>
-      <h3 class='panel-title'>My Groups: ({{members|length}} total)</h3>
-    </div>
-    <div class='panel-body'>
-      <ul class='list-unstyled'>
-      {% for member in members %}
-        <li><a class='list-group-item list-group-item-primary' href="{% url 'rosters:detail' member.roster.id member.roster.slug %}">{{member.roster.name}}</a></li>
-      {% endfor %}
-      </ul>
-    </div>
 
   </div>
-</div>
+  </div>
+  <div class='row'>
+  <div class='col-sm-4 col-sm-offset-1'>
+        <div class='sidebar-module sidebar-module-inset'>
+        <ul class='list-unstyled'>
+  	  <li><strong>Email: </strong>{{ player.email }}</li>
+
+        <li><strong>First name: </strong>{{ player.first_name }}</li>
+        <li><strong>Last name: </strong>{{ player.last_name }}</li>
+  	  <li><strong>Phone number: </strong>{{ player.phone_number }}</li>
+  	  <li><strong>Home address: </strong>{{ player.home_address }}</li>
+        <li><strong>State: </strong>{{ player.state }} </li>
+        <li><strong>Home zipcode: </strong>{{ player.home_zip }} </li>
+  	  <li><strong>Work address: </strong>{{ player.work_address }}</li>
+        <li><strong>Work zipcode: </strong>{{ player.work_zip }} </li>
 
 
+
+        </ul>
+        </div>
+        <br>
+         <a class='btn btn-primary btn-block' href="{% url 'players:update' user.username %}">(edit profile)</a>
+
+  </div>
+  <div class='col-sm-4 col-sm-offset-1'>
+    <div class='panel panel-primary'>
+      <div class='panel-heading'>
+        <h3 class='panel-title'>My Groups: ({{members|length}} total)</h3>
+      </div>
+      <div class='panel-body'>
+        <ul class='list-unstyled'>
+        {% for member in members %}
+          <li><a class='list-group-item list-group-item-primary' href="{% url 'rosters:detail' member.roster.id member.roster.slug %}">{{member.roster.name}}</a></li>
+        {% endfor %}
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+
+  {% else %}
+  	<h2>not authorized to view this profile.</h2>
+      <p><a href="{%  url 'players:detail' user.username %}">Back to Your Profile</a></p>
+  {% endif %}
 {% else %}
-	<h2>not authorized to view this profile.</h2>
-    <p><a href="{%  url 'players:detail' user.username %}">Back to Your Profile</a></p>
+<div class='col-sm-6 '>
+<div class='sidebar-module sidebar-module-inset'>
+  <center>
+    <h2>not authorized to view this profile.</h2><br>
+    <p><a class='btn btn-lg btn-primary' href="{% url 'login' %}">Please log in to access your profile.</a></p>
+  </center>
+</div>
 {% endif %}
 
 {% endblock %}
