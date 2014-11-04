@@ -70,12 +70,12 @@ class PlayerChangeForm(forms.ModelForm):
     class Meta:
         model = Player
         fields = (
-            'username',
             'email',
             'phone_number',
             'first_name',
             'last_name',
             'home_address',
+            'state',
             'home_zip',
             'work_address',
             'work_zip',

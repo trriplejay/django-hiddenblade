@@ -4,7 +4,7 @@
 {% block page_content %}
 <div class="container">
 {% if user.is_authenticated %}
-    <strong>I'm afraid I can't do that, {{user.username}}</strong>
+    <strong>I'm afraid I can't do that, <a href="{%  url 'players:detail' user.username %}">{{user.username}}</a></strong>
 {% else %}
     <strong>You have to be logged in to even <i>attempt</i> to do that...</strong>
 {% endif %}

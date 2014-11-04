@@ -2,7 +2,6 @@ from django.db import models
 from players.models import Player
 from localflavor.us.models import USStateField
 from django.template.defaultfilters import slugify
-import datetime
 
 
 # Create your models here.
@@ -15,25 +14,30 @@ class RosterManager(models.Manager):
             'game'
         ).order_by('start_time')
 
-    def get_players(self):
-        """
-        returns a queryset of all members of the group and their
-        associated player object
-        """
-        return self.model.objects.all().prefetch_related('members__player')
-        #filter(id=id).prefetch_related('player')
-
     def get_mod_status(self, roster_id, player_id):
+        """
+        Returns an entry if the player id provided
+        has moderator privileges in the roster id
+        provided.
+        """
         return Membership.objects.filter(
             roster=roster_id
             ).filter(is_moderator=True, player=player_id)
 
     def get_mod_players(self, roster_id):
+        """
+        returns all players that have moderator status
+        in a particular roster
+        """
         return Membership.objects.filter(
             roster=roster_id
             ).filter(is_moderator=True)
 
     def get_all_members(self, roster_id):
+        """
+        return all member/player info for a
+        particular roster
+        """
         if roster_id is not None:
             return Membership.objects.filter(
                 roster=roster_id
@@ -42,6 +46,10 @@ class RosterManager(models.Manager):
             return Membership.objects.all()
 
     def get_approved_members(self, roster_id):
+        """
+        return a list of members who have been
+        approved by a moderator
+        """
         if roster_id is not None:
             return Membership.objects.filter(
                 roster=roster_id,
@@ -49,6 +57,9 @@ class RosterManager(models.Manager):
             ).prefetch_related('player')
 
     def get_active_members(self, roster_id):
+        """
+        return all active players for this roster
+        """
         if roster_id is not None:
             return Membership.objects.filter(
                 roster=roster_id,
@@ -58,6 +69,9 @@ class RosterManager(models.Manager):
             return Membership.objects.all()
 
     def get_roster(self, roster_id):
+        """
+        return the roster based on its ID
+        """
         if roster_id is not None:
             return self.model.objects.filter(id=roster_id)
 
@@ -121,18 +135,36 @@ class MembershipManager(models.Manager):
         return self.model.objects.all()
 
     def get_moderators(self):
+        """
+        Return all memberships that are marked as
+        moderators.  There could be multiple for the
+        same player ID, if that player moderates multiple
+        groups
+        """
         return self.model.objects.filter(is_moderator=True)
 
     def get_member(self, mem_id):
+        """
+        return a specific member based on their ID
+        """
         return self.model.objects.filter(player=mem_id)
 
     def get_mod_count(self, mem_id):
+        """
+        count the number of membership a particular
+        player has where they are the moderator, so that
+        a hard limit can be imposed
+        """
         return self.model.objects.filter(
             player=mem_id,
             is_moderator=True
         ).count()
 
     def get_member_groups(self, mem_id):
+        """
+        Based on a member id, return the roster
+        information associated with that membership
+        """
         return self.model.objects.filter(
             player=mem_id,
         ).select_related('roster').filter(
@@ -140,6 +172,10 @@ class MembershipManager(models.Manager):
         )
 
     def get_mem_in_group(self, mem_id, roster_id):
+        """
+        given a roster ID, and a membership ID,
+        return the roster object
+        """
         return self.model.objects.filter(
             player=mem_id,
             roster=roster_id
@@ -204,15 +240,28 @@ class Membership(models.Model):
 class CommentManager(models.Manager):
 
     def live(self):
+        """
+        an inactive comment is essentially a
+        deleted comment.  Moderator can deactivate
+        a comment that was written on their group's
+        page
+        """
         return self.model.objects.filter(is_active=True)
 
     def get_roster(self, roster_id):
+        """
+        get all comments for a particular roster
+        as well as the player info for the authors
+        """
         return self.model.objects.filter(
             is_active=True,
             roster=roster_id,
         ).select_related('player')
 
     def get_player_comments(self, player_id):
+        """
+        get all comments for a particular player
+        """
         return self.model.objects.filter(
             is_active=True,
             player=player_id
@@ -248,14 +297,27 @@ class GameManager(models.Manager):
         return self.model.objects.filter(is_active=True)
 
     def get_for_group(self, id):
+        """
+        return all games associated with a
+        particular roster
+        """
         return self.model.objects.filter(roster=id)
 
     def get_recent_game(self, roster_id):
+        """
+        get all games for a roster, ordered by
+        start time such that we get the most recent
+        game as the first result
+        """
         return self.model.objects.filter(
             roster=roster_id,
         ).order_by('-start_time')
 
     def get_action_list(self, id):
+        """
+        return all actions associated with a particular
+        game ID
+        """
         return self.model.objects.filter(
             id=id
             ).select_related('action_list')
@@ -304,6 +366,9 @@ class Game(models.Model):
 
     # types the moderator can choose from when starting a game.  This
     # will affect how the game assigns targets
+    # %TODO change this into a many to many relationship
+    # with some kind of game_mode object, so that the choices
+    # can be easily modified and more malleable
     MODE_CHOICES = (
         ('STD', 'Standard'),
         ('FFA', 'Free For All'),
@@ -332,11 +397,19 @@ class Game(models.Model):
 class ActionManager(models.Manager):
 
     def get_roster(self, roster_id):
+        """
+        get all actions associated with a
+        particular roster
+        """
         return self.model.objects.filter(
             roster=roster_id
         ).select_related('target', 'source')
 
     def get_game(self, game_id):
+        """
+        get all actions associated with a
+        particular game instance
+        """
         return self.model.objects.filter(
             game=game_id
         ).select_related('target', 'source')
