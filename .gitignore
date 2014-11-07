@@ -4,3 +4,4 @@ hiddenblade/settings/local.py
 hiddenblade/settings/testing.py
 .coverage
 htmlcov/*
+.elasticbeanstalk/

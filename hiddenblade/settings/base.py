@@ -83,8 +83,8 @@ ROOT_URLCONF = 'hiddenblade.urls'
 
 WSGI_APPLICATION = 'hiddenblade.wsgi.application'
 
-
-# Database
+"""
+# Database FOR HEROKU
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
 import dj_database_url
@@ -94,6 +94,21 @@ DATABASES = {
     }
 }
 DATABASES['default'] = dj_database_url.config()
+"""
+
+# Database FOR AWS
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ['RDS_DB_NAME'],
+        'USER': os.environ['RDS_USERNAME'],
+        'PASSWORD': os.environ['RDS_PASSWORD'],
+        'HOST': os.environ['RDS_HOSTNAME'],
+        'PORT': os.environ['RDS_PORT'],
+    }
+}
+
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
